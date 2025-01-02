@@ -1,1 +1,1 @@
-const String urlGateway = "http://202.134.18.27:2002/";
+const String urlGateway = "http://14.232.208.220:1004/";

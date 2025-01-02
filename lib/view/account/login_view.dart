@@ -1,6 +1,17 @@
 // ignore_for_file: prefer_const_constructors
 
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:meepay_app/controller/user_controller.dart';
+import 'package:meepay_app/models/request/login_request.dart';
+import 'package:meepay_app/models/response/response_object.dart';
+import 'package:meepay_app/models/response/token_response.dart';
+import 'package:meepay_app/models/response/user_profile.dart';
+import 'package:meepay_app/utils/dialog_process.dart';
+import 'package:meepay_app/utils/scaffold_messger.dart';
+import 'package:meepay_app/view/main/main_view.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginView extends StatefulWidget {
   const LoginView({Key? key}) : super(key: key);
@@ -11,12 +22,60 @@ class LoginView extends StatefulWidget {
 
 class _LoginViewState extends State<LoginView> {
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
-
-  final TextEditingController mobileController = TextEditingController();
-  final TextEditingController passwordController = TextEditingController();
+  final UserController con = UserController();
+  final TextEditingController mobileNumber = TextEditingController();
+  final TextEditingController password = TextEditingController();
   bool _showPassword = true;
 
-  Future<void> login() async {}
+  SharedPreferences? prefs;
+
+  @override
+  void initState() {
+    super.initState();
+    init();
+  }
+
+  init() async {
+    prefs = await SharedPreferences.getInstance();
+  }
+
+  login() async {
+    mobileNumber.text = "0936062990";
+    password.text = "1";
+    if (mobileNumber.text == "") {
+      showMessage("Vui lòng nhập số điện thoại", "99", 3);
+      return;
+    }
+
+    if (password.text == "") {
+      showMessage("Vui lòng nhập mật khẩu", "99", 3);
+      return;
+    }
+    LoginRequest loginRequest = LoginRequest();
+    loginRequest.password = password.text;
+    loginRequest.phoneNumber = mobileNumber.text;
+    if (mounted) showProcess(context);
+
+    ResponseObject res = await con.login(loginRequest);
+    if (context.mounted) Navigator.pop(context);
+    if (res.code == "00") {
+      UserProfile userProfile = UserProfile.fromJson(jsonDecode(res.data!));
+
+      String user = jsonEncode(userProfile);
+      prefs!.setString('user', user);
+      TokenResponse token = TokenResponse.fromJson(jsonDecode(res.token!));
+      prefs!.setString('accessToken', token.accessToken!);
+      prefs!.setString('mobileNumber', userProfile.phoneNumber ?? "");
+      if (mounted) {
+        Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(builder: (BuildContext context) => MainView()),
+            (Route<dynamic> route) => false);
+      }
+    } else {
+      if (context.mounted) showMessage(res.message!, "99", 3);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -53,7 +112,7 @@ class _LoginViewState extends State<LoginView> {
                           ),
                           SizedBox(height: size.height * 0.06),
                           TextFormField(
-                            controller: mobileController,
+                            controller: mobileNumber,
                             maxLength: 10,
                             keyboardType: TextInputType.number,
                             decoration: InputDecoration(
@@ -69,7 +128,7 @@ class _LoginViewState extends State<LoginView> {
                           SizedBox(height: size.height * 0.03),
                           TextFormField(
                             obscureText: _showPassword,
-                            controller: passwordController,
+                            controller: password,
                             maxLength: 6,
                             keyboardType: TextInputType.number,
                             decoration: InputDecoration(
