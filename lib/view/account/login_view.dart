@@ -8,6 +8,7 @@ import 'package:meepay_app/models/request/login_request.dart';
 import 'package:meepay_app/models/response/response_object.dart';
 import 'package:meepay_app/models/response/token_response.dart';
 import 'package:meepay_app/models/response/user_profile.dart';
+import 'package:meepay_app/utils/color_mp.dart';
 import 'package:meepay_app/utils/dialog_process.dart';
 import 'package:meepay_app/utils/scaffold_messger.dart';
 import 'package:meepay_app/view/main/main_view.dart';
@@ -36,12 +37,12 @@ class _LoginViewState extends State<LoginView> {
   }
 
   init() async {
+    mobileNumber.text = "0936062990";
+    password.text = "1";
     prefs = await SharedPreferences.getInstance();
   }
 
   login() async {
-    mobileNumber.text = "0936062990";
-    password.text = "1";
     if (mobileNumber.text == "") {
       showMessage("Vui lòng nhập số điện thoại", "99", 3);
       return;
@@ -141,7 +142,7 @@ class _LoginViewState extends State<LoginView> {
                                   _showPassword
                                       ? Icons.visibility
                                       : Icons.visibility_off,
-                                  color: const Color.fromARGB(255, 80, 44, 44),
+                                  color: ColorMP.ColorAccent,
                                 ),
                               ),
                               labelText: "Mật khẩu",
@@ -161,7 +162,7 @@ class _LoginViewState extends State<LoginView> {
                                 child: ElevatedButton(
                                   onPressed: login,
                                   style: ElevatedButton.styleFrom(
-                                      backgroundColor: Colors.red,
+                                      backgroundColor: ColorMP.ColorPrimary,
                                       shape: RoundedRectangleBorder(
                                           borderRadius:
                                               BorderRadius.circular(50)),
@@ -192,8 +193,6 @@ class _LoginViewState extends State<LoginView> {
                               },
                               child: Text(
                                 "Quên mật khẩu?",
-                                style:
-                                    TextStyle(color: Colors.red, fontSize: 15),
                               ),
                             ),
                           ),

@@ -18,12 +18,12 @@ class _MainViewState extends State<MainView> {
   int _selectedIndex = 0;
   List<TabItem> items = [
     TabItem(
-      icon: Ionicons.home_outline,
-      title: 'Trang chủ',
+      icon: Ionicons.notifications_outline,
+      title: 'Thông báo',
     ),
     TabItem(
-      icon: Ionicons.person_outline,
-      title: 'Tài khoản',
+      icon: Ionicons.storefront_outline,
+      title: 'Cửa hàng',
     ),
   ];
   final List<Widget> _widgetOptions = <Widget>[HomeView(), HomeView()];
@@ -31,14 +31,11 @@ class _MainViewState extends State<MainView> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        toolbarHeight: 0,
         backgroundColor: ColorMP.ColorPrimary,
-        automaticallyImplyLeading: false,
-        centerTitle: true,
-        titleTextStyle: const TextStyle(
-            color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
-        title: const Text('Mee Pay'),
       ),
-      body: Center(
+      body: Container(
+        color: ColorMP.ColorBackground,
         child: _widgetOptions.isNotEmpty
             ? _widgetOptions.elementAt(_selectedIndex)
             : SizedBox.shrink(),
