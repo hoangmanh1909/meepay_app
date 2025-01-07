@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:meepay_app/utils/color_mp.dart';
 import 'package:meepay_app/view/main/home_view.dart';
+import 'package:meepay_app/view/main/shop_view.dart';
 
 class MainView extends StatefulWidget {
   const MainView({super.key});
@@ -26,7 +27,7 @@ class _MainViewState extends State<MainView> {
       title: 'Cửa hàng',
     ),
   ];
-  final List<Widget> _widgetOptions = <Widget>[HomeView(), HomeView()];
+  final List<Widget> _widgetOptions = <Widget>[HomeView(), ShopView()];
   @override
   Widget build(BuildContext context) {
     return Scaffold(

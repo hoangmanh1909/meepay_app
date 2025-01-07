@@ -15,7 +15,6 @@ class UserController extends ControllerMVC {
   final ApiClient apiClient = ApiClient();
 
   Future<ResponseObject> login(LoginRequest loginRequest) async {
-    String r = jsonEncode(loginRequest);
     RequestObject baseRequest = RequestObject(
         code: CommandCode.USER_LOGIN,
         data: jsonEncode(loginRequest),

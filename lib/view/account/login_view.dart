@@ -12,6 +12,7 @@ import 'package:meepay_app/utils/color_mp.dart';
 import 'package:meepay_app/utils/dialog_process.dart';
 import 'package:meepay_app/utils/scaffold_messger.dart';
 import 'package:meepay_app/view/main/main_view.dart';
+import 'package:meepay_app/view/main/scanqr_view.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginView extends StatefulWidget {
@@ -38,7 +39,7 @@ class _LoginViewState extends State<LoginView> {
 
   init() async {
     mobileNumber.text = "0936062990";
-    password.text = "1";
+    password.text = "123456aA@";
     prefs = await SharedPreferences.getInstance();
   }
 
