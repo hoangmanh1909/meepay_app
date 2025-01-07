@@ -37,19 +37,23 @@ class _LoginViewState extends State<LoginView> {
   }
 
   init() async {
-    mobileNumber.text = "0936062990";
-    password.text = "1";
+    // mobileNumber.text = "0936062990";
+    // password.text = "123456aA";
     prefs = await SharedPreferences.getInstance();
   }
 
   login() async {
-    if (mobileNumber.text == "") {
-      showMessage("Vui lòng nhập số điện thoại", "99", 3);
-      return;
-    }
+    // if (mobileNumber.text == "") {
+    //   showMessage("Vui lòng nhập số điện thoại", "99", 3);
+    //   return;
+    // }
 
-    if (password.text == "") {
-      showMessage("Vui lòng nhập mật khẩu", "99", 3);
+    // if (password.text == "") {
+    //   showMessage("Vui lòng nhập mật khẩu", "99", 3);
+    //   return;
+    // }
+    final isValid = formKey.currentState!.validate();
+    if (!isValid) {
       return;
     }
     LoginRequest loginRequest = LoginRequest();
@@ -113,6 +117,8 @@ class _LoginViewState extends State<LoginView> {
                           ),
                           SizedBox(height: size.height * 0.06),
                           TextFormField(
+                            autovalidateMode:
+                                AutovalidateMode.onUserInteraction,
                             controller: mobileNumber,
                             maxLength: 10,
                             keyboardType: TextInputType.number,
@@ -125,9 +131,17 @@ class _LoginViewState extends State<LoginView> {
                                 borderRadius: BorderRadius.circular(10),
                               ),
                             ),
+                            validator: (text) {
+                              if (text == null || text.isEmpty) {
+                                return "Vui lòng nhập số điện thoại";
+                              }
+                              return null;
+                            },
                           ),
                           SizedBox(height: size.height * 0.03),
                           TextFormField(
+                            autovalidateMode:
+                                AutovalidateMode.onUserInteraction,
                             obscureText: _showPassword,
                             controller: password,
                             maxLength: 6,
@@ -153,6 +167,12 @@ class _LoginViewState extends State<LoginView> {
                                 borderRadius: BorderRadius.circular(10),
                               ),
                             ),
+                            validator: (text) {
+                              if (text == null || text.isEmpty) {
+                                return "Vui lòng nhập mật khẩu";
+                              }
+                              return null;
+                            },
                           ),
                           SizedBox(height: size.height * 0.04),
                           Row(
