@@ -30,4 +30,12 @@ class AccountController extends ControllerMVC {
         signature: "");
     return await apiClient.execute(baseRequest);
   }
+
+  Future<ResponseObject> addLink(ChangeLinkRequest req) async {
+    RequestObject baseRequest = RequestObject(
+        code: CommandCode.ACCOUNT_BANK_ADD_NEW,
+        data: jsonEncode(req),
+        signature: "");
+    return await apiClient.execute(baseRequest);
+  }
 }

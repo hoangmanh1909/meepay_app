@@ -1,5 +1,8 @@
+// ignore_for_file: prefer_const_constructors
+
 import 'package:flutter/material.dart';
 import 'package:meepay_app/models/response/dictionary_response.dart';
+import 'package:meepay_app/utils/box_shadow.dart';
 import 'package:meepay_app/utils/color_mp.dart';
 
 class BankDialog extends StatelessWidget {
@@ -10,6 +13,7 @@ class BankDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+        backgroundColor: ColorMP.ColorBackground,
         appBar: AppBar(
           backgroundColor: ColorMP.ColorPrimary,
           automaticallyImplyLeading: false,
@@ -24,29 +28,48 @@ class BankDialog extends StatelessWidget {
         ),
         body: Container(
             margin: const EdgeInsets.all(8.0),
-            decoration: const BoxDecoration(color: Colors.white),
             child: ListView.builder(
                 scrollDirection: Axis.vertical,
                 itemCount: banks.length,
                 itemBuilder: (BuildContext ctxt, int index) {
                   return InkWell(
-                      onTap: () {
-                        Navigator.of(context).pop(banks[index]);
-                      },
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.all(4),
-                            child: Text(
-                              "${banks[index].code!.trim()} - ${banks[index].name!.trim()}",
+                    onTap: () {
+                      Navigator.of(context).pop(banks[index]);
+                    },
+                    child: Container(
+                        decoration: BoxDecoration(
+                            color: Colors.white, boxShadow: [boxShadow()]),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Padding(
+                              padding: EdgeInsets.all(4),
+                              child: Image(
+                                image: AssetImage('assets/img/vietinbank.png'),
+                                width: 60,
+                                height: 40,
+                              ),
                             ),
-                          ),
-                          const Divider(
-                            height: 10,
-                          )
-                        ],
-                      ));
+                            Container(
+                              alignment: Alignment.center,
+                              padding: const EdgeInsets.all(8),
+                              child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      banks[index].shortName!.trim(),
+                                      style: const TextStyle(
+                                          fontWeight: FontWeight.w600),
+                                    ),
+                                    Text(
+                                      banks[index].name!.trim(),
+                                      softWrap: true,
+                                    ),
+                                  ]),
+                            ),
+                          ],
+                        )),
+                  );
                 })));
   }
 }

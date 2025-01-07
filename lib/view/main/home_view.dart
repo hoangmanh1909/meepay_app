@@ -2,20 +2,22 @@
 
 import 'dart:convert';
 
-import 'package:calendar_date_picker2/calendar_date_picker2.dart';
 import 'package:flutter/material.dart';
-import 'package:ionicons/ionicons.dart';
+import 'package:intl/intl.dart';
+import 'package:meepay_app/controller/account_controller.dart';
 import 'package:meepay_app/controller/notify_controller.dart';
+import 'package:meepay_app/models/request/account_search_request.dart';
 import 'package:meepay_app/models/request/notify_search_request.dart';
+import 'package:meepay_app/models/response/account_search_response.dart';
 import 'package:meepay_app/models/response/notify_search_response.dart';
 import 'package:meepay_app/models/response/response_object.dart';
 import 'package:meepay_app/models/response/user_profile.dart';
+import 'package:meepay_app/utils/bottom_sheet.dart';
 import 'package:meepay_app/utils/color_mp.dart';
 import 'package:meepay_app/utils/common.dart';
 import 'package:meepay_app/utils/dialog_date.dart';
 import 'package:meepay_app/utils/dialog_process.dart';
 import 'package:meepay_app/utils/scaffold_messger.dart';
-import 'package:meepay_app/view/account/user_info_view.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class HomeView extends StatefulWidget {
@@ -27,9 +29,12 @@ class HomeView extends StatefulWidget {
 
 class _HomeViewState extends State<HomeView> with TickerProviderStateMixin {
   final NotifyController con = NotifyController();
+  final AccountController conAcc = AccountController();
   SharedPreferences? prefs;
   UserProfile? userProfile;
   List<NotifySearchResponse>? notifies;
+  List<AccountSearchResponse> accounts = [];
+  AccountSearchResponse? account;
   int quantity = 0;
   int amount = 0;
 
@@ -48,14 +53,41 @@ class _HomeViewState extends State<HomeView> with TickerProviderStateMixin {
       setState(() {
         userProfile = UserProfile.fromJson(jsonDecode(userMap));
       });
-      getNotify();
+
+      await accountSearch();
     }
   }
 
-  getNotify() async {
+  accountSearch() async {
+    AccountSearchRequest req = AccountSearchRequest();
+    req.merchantID = userProfile!.merchantID;
+    req.shopID = userProfile!.shopID;
+
+    if (mounted) showProcess(context);
+    ResponseObject res = await conAcc.search(req);
+    if (res.code == "00") {
+      setState(() {
+        accounts = List<AccountSearchResponse>.from((jsonDecode(res.data!)
+            .map((model) => AccountSearchResponse.fromJson(model))));
+      });
+      account = accounts[0];
+      NotifySearchRequest req = NotifySearchRequest();
+      String formattedDate = DateFormat('dd/MM/yyyy').format(DateTime.now());
+      req.fromDate = formattedDate;
+      req.toDate = formattedDate;
+      // req.accountID = item.iD;
+      await getNotify(req);
+    } else {
+      showMessage(res.message!, "99", 4);
+    }
+    if (mounted) {
+      Navigator.pop(context);
+    }
+  }
+
+  getNotify(NotifySearchRequest req) async {
     if (mounted) showProcess(context);
 
-    NotifySearchRequest req = NotifySearchRequest();
     ResponseObject res = await con.search(req);
     if (res.code == "00") {
       setState(() {
@@ -94,17 +126,32 @@ class _HomeViewState extends State<HomeView> with TickerProviderStateMixin {
                   actions: <Widget>[
                     IconButton(
                       icon: const Icon(
-                        Icons.filter_alt,
+                        Icons.calendar_month_outlined,
                         color: Colors.white,
                       ),
                       onPressed: () async {
                         final values = await dialogDate(context);
-                        if (values != null) {}
+                        if (values != null) {
+                          NotifySearchRequest req = NotifySearchRequest();
+                          req.fromDate =
+                              DateFormat('dd/MM/yyyy').format(values[0]);
+                          req.toDate =
+                              DateFormat('dd/MM/yyyy').format(values[1]);
+
+                          getNotify(req);
+                        }
                       },
                     )
                   ]),
-              textAccount("HOÀNG VĂN MẠNH"),
-              textAccount("0936062990")
+              InkWell(
+                onTap: () {
+                  bottomSheet(context, accounts);
+                },
+                child: Column(children: [
+                  textAccount(account != null ? account!.name! : ""),
+                  textAccount(account != null ? account!.accoumtNumber! : ""),
+                ]),
+              )
             ],
           ),
           height: 150,

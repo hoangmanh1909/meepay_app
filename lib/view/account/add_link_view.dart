@@ -13,6 +13,7 @@ import 'package:meepay_app/utils/color_mp.dart';
 import 'package:meepay_app/utils/common.dart';
 import 'package:meepay_app/utils/dialog_process.dart';
 import 'package:meepay_app/utils/dialog_widget_bank.dart';
+import 'package:meepay_app/utils/scaffold_messger.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AddLinkView extends StatefulWidget {
@@ -24,7 +25,7 @@ class AddLinkView extends StatefulWidget {
 
 class _AddLinkViewState extends State<AddLinkView> {
   final DictionaryController con = DictionaryController();
-
+  final GlobalKey<FormState> formKey = GlobalKey<FormState>();
   final TextEditingController _accNumber = TextEditingController();
   final TextEditingController _accNameNumber = TextEditingController();
   final TextEditingController _accPIDNumber = TextEditingController();
@@ -50,10 +51,11 @@ class _AddLinkViewState extends State<AddLinkView> {
       setState(() {
         userProfile = UserProfile.fromJson(jsonDecode(userMap));
       });
+      getBank();
     }
   }
 
-  getNotify() async {
+  getBank() async {
     if (mounted) showProcess(context);
 
     ResponseObject res = await con.getBank();
@@ -69,69 +71,76 @@ class _AddLinkViewState extends State<AddLinkView> {
     }
   }
 
+  addLink() {
+    if (selectedBank == null) {
+      showMessage("Vui lòng chọn ngân hàng", "99", 3);
+      return;
+    }
+    final isValid = formKey.currentState!.validate();
+    if (!isValid) {
+      return;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      resizeToAvoidBottomInset: false,
-      backgroundColor: ColorMP.ColorBackground,
-      appBar: AppBar(
-        backgroundColor: ColorMP.ColorPrimary,
-        automaticallyImplyLeading: false,
-        centerTitle: true,
-        titleTextStyle: const TextStyle(
-            color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
-        title: const Text("Liên kết tài khoản"),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () => Navigator.of(context).pop(),
+        resizeToAvoidBottomInset: false,
+        backgroundColor: ColorMP.ColorBackground,
+        appBar: AppBar(
+          backgroundColor: ColorMP.ColorPrimary,
+          automaticallyImplyLeading: false,
+          centerTitle: true,
+          titleTextStyle: const TextStyle(
+              color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+          title: const Text("Liên kết tài khoản"),
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back, color: Colors.white),
+            onPressed: () => Navigator.of(context).pop(),
+          ),
         ),
-      ),
-      body: SingleChildScrollView(
-          child: Column(
-        children: [
-          Container(
-            margin: EdgeInsets.all(8),
-            padding: EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(8),
-              boxShadow: [boxShadow()],
-            ),
-            child: buildAccount(),
-          ),
-          Container(
-            margin: EdgeInsets.all(8),
-            padding: EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(8),
-              boxShadow: [boxShadow()],
-            ),
-            child: buildDevice(),
-          ),
-          InkWell(
-              onTap: () {
-                Future.delayed(Duration.zero, () {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => const AddLinkView()));
-                });
-              },
-              child: Container(
-                  alignment: Alignment.center,
-                  height: 40,
-                  margin: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                      color: ColorMP.ColorAccent,
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: ColorMP.ColorAccent)),
-                  child: Text("Cập nhật",
-                      style: TextStyle(
-                          color: Colors.white, fontWeight: FontWeight.w600))))
-        ],
-      )),
-    );
+        body: Form(
+          key: formKey,
+          child: SingleChildScrollView(
+              child: Column(
+            children: [
+              Container(
+                margin: EdgeInsets.all(8),
+                padding: EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(8),
+                  boxShadow: [boxShadow()],
+                ),
+                child: buildAccount(),
+              ),
+              Container(
+                margin: EdgeInsets.only(right: 8, left: 8),
+                padding: EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(8),
+                  boxShadow: [boxShadow()],
+                ),
+                child: buildDevice(),
+              ),
+              InkWell(
+                  onTap: addLink,
+                  child: Container(
+                      alignment: Alignment.center,
+                      height: 40,
+                      margin: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                          color: ColorMP.ColorAccent,
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(color: ColorMP.ColorAccent)),
+                      child: Text("Cập nhật",
+                          style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w600))))
+            ],
+          )),
+        ));
   }
 
   openDialog() async {
@@ -179,7 +188,7 @@ class _AddLinkViewState extends State<AddLinkView> {
                 children: [
                   Text(
                       selectedBank != null
-                          ? selectedBank!.code!
+                          ? selectedBank!.shortName!
                           : "Chọn ngân hàng",
                       textAlign: TextAlign.center,
                       style: TextStyle(
@@ -202,13 +211,22 @@ class _AddLinkViewState extends State<AddLinkView> {
         SizedBox(
           height: 4,
         ),
-        TextField(
-            controller: _accNumber,
-            decoration: InputDecoration(
-                border: OutlineInputBorder(),
-                hintText: "Số tài khoản",
-                contentPadding: EdgeInsets.all(10),
-                isDense: true)),
+        TextFormField(
+          autovalidateMode: AutovalidateMode.onUserInteraction,
+          controller: _accNumber,
+          decoration: InputDecoration(
+            border: OutlineInputBorder(),
+            hintText: "Số tài khoản",
+            contentPadding: EdgeInsets.all(10),
+            isDense: true,
+          ),
+          validator: (text) {
+            if (text == null || text.isEmpty) {
+              return "Vui lòng nhập số tài khoản";
+            }
+            return null;
+          },
+        ),
         SizedBox(
           height: 10,
         ),
@@ -216,27 +234,43 @@ class _AddLinkViewState extends State<AddLinkView> {
         SizedBox(
           height: 4,
         ),
-        TextField(
-            controller: _accNameNumber,
-            decoration: InputDecoration(
-                border: OutlineInputBorder(),
-                hintText: "Chủ tài khoản",
-                contentPadding: EdgeInsets.all(10),
-                isDense: true)),
+        TextFormField(
+          autovalidateMode: AutovalidateMode.onUserInteraction,
+          controller: _accNameNumber,
+          decoration: InputDecoration(
+              border: OutlineInputBorder(),
+              hintText: "Chủ tài khoản",
+              contentPadding: EdgeInsets.all(10),
+              isDense: true),
+          validator: (text) {
+            if (text == null || text.isEmpty) {
+              return "Vui lòng nhập chủ tài khoản";
+            }
+            return null;
+          },
+        ),
         SizedBox(
           height: 10,
         ),
-        textLabelRequired("Căn cước công dân"),
+        textLabelRequired("CCCD/Hộ chiếu"),
         SizedBox(
           height: 4,
         ),
-        TextField(
-            controller: _accPIDNumber,
-            decoration: InputDecoration(
-                border: OutlineInputBorder(),
-                hintText: "Căn cước công dân",
-                contentPadding: EdgeInsets.all(10),
-                isDense: true)),
+        TextFormField(
+          autovalidateMode: AutovalidateMode.onUserInteraction,
+          controller: _accPIDNumber,
+          decoration: InputDecoration(
+              border: OutlineInputBorder(),
+              hintText: "CCCD/Hộ chiếu",
+              contentPadding: EdgeInsets.all(10),
+              isDense: true),
+          validator: (text) {
+            if (text == null || text.isEmpty) {
+              return "Vui lòng nhập CCCD/Hộ chiếu";
+            }
+            return null;
+          },
+        ),
         SizedBox(
           height: 10,
         ),
@@ -271,19 +305,36 @@ class _AddLinkViewState extends State<AddLinkView> {
           Row(
             children: [
               Expanded(
-                  child: TextField(
-                      controller: _accNameNumber,
-                      decoration: InputDecoration(
-                          border: OutlineInputBorder(),
-                          hintText: "Mã thiết bị (Serial)",
-                          contentPadding: EdgeInsets.all(10),
-                          isDense: true))),
-              SizedBox(
-                  width: 50,
-                  child: IconButton(
-                      iconSize: 40,
-                      onPressed: () => {},
-                      icon: Icon(Ionicons.qr_code_outline)))
+                  child: TextFormField(
+                autovalidateMode: AutovalidateMode.onUserInteraction,
+                controller: _accNameNumber,
+                decoration: InputDecoration(
+                    border: OutlineInputBorder(),
+                    hintText: "Mã thiết bị (Serial)",
+                    contentPadding: EdgeInsets.all(10),
+                    isDense: true),
+                validator: (text) {
+                  if (text == null || text.isEmpty) {
+                    return "Vui lòng nhập Mã thiết bị";
+                  }
+                  return null;
+                },
+              )),
+              InkWell(
+                onTap: () {},
+                child: Container(
+                  margin: EdgeInsets.only(left: 4),
+                  width: 40,
+                  height: 40,
+                  decoration: BoxDecoration(
+                      color: ColorMP.ColorAccent,
+                      borderRadius: BorderRadius.circular(4)),
+                  child: Icon(
+                    Ionicons.qr_code_outline,
+                    color: Colors.white,
+                  ),
+                ),
+              )
             ],
           ),
         ]);
