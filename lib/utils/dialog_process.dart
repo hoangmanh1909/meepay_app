@@ -5,7 +5,7 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:meepay_app/utils/color_mp.dart';
 
 showProcess(BuildContext context) {
-  final spinkit = SpinKitChasingDots(color: ColorMP.ColorAccent);
+  final spinkit = SpinKitFadingCircle(color: ColorMP.ColorAccent);
 
   // show the dialog
   showDialog(

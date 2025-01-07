@@ -2,6 +2,7 @@
 
 import 'dart:convert';
 
+import 'package:calendar_date_picker2/calendar_date_picker2.dart';
 import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:meepay_app/controller/notify_controller.dart';
@@ -11,7 +12,10 @@ import 'package:meepay_app/models/response/response_object.dart';
 import 'package:meepay_app/models/response/user_profile.dart';
 import 'package:meepay_app/utils/color_mp.dart';
 import 'package:meepay_app/utils/common.dart';
+import 'package:meepay_app/utils/dialog_date.dart';
 import 'package:meepay_app/utils/dialog_process.dart';
+import 'package:meepay_app/utils/scaffold_messger.dart';
+import 'package:meepay_app/view/account/user_info_view.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class HomeView extends StatefulWidget {
@@ -90,16 +94,12 @@ class _HomeViewState extends State<HomeView> with TickerProviderStateMixin {
                   actions: <Widget>[
                     IconButton(
                       icon: const Icon(
-                        Ionicons.filter_circle_outline,
+                        Icons.filter_alt,
                         color: Colors.white,
                       ),
-                      onPressed: () {
-                        // Future.delayed(Duration.zero, () {
-                        //   Navigator.push(
-                        //       context,
-                        //       MaterialPageRoute(
-                        //           builder: (context) => const RewardHistoryView()));
-                        // });
+                      onPressed: () async {
+                        final values = await dialogDate(context);
+                        if (values != null) {}
                       },
                     )
                   ]),
@@ -107,7 +107,7 @@ class _HomeViewState extends State<HomeView> with TickerProviderStateMixin {
               textAccount("0936062990")
             ],
           ),
-          height: MediaQuery.of(context).size.height * 0.2 + 20,
+          height: 150,
           width: MediaQuery.of(context).size.width,
           decoration: BoxDecoration(
               color: ColorMP.ColorPrimary,
