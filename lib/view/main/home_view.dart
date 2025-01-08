@@ -4,6 +4,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:ionicons/ionicons.dart';
 import 'package:meepay_app/controller/account_controller.dart';
 import 'package:meepay_app/controller/notify_controller.dart';
 import 'package:meepay_app/models/request/account_search_request.dart';
@@ -66,10 +67,15 @@ class _HomeViewState extends State<HomeView> with TickerProviderStateMixin {
     if (mounted) showProcess(context);
     ResponseObject res = await conAcc.search(req);
     if (res.code == "00") {
+      List<AccountSearchResponse> r = List<AccountSearchResponse>.from(
+          (jsonDecode(res.data!)
+              .map((model) => AccountSearchResponse.fromJson(model))));
+      r.addAll(List<AccountSearchResponse>.from((jsonDecode(res.data!)
+          .map((model) => AccountSearchResponse.fromJson(model)))));
       setState(() {
-        accounts = List<AccountSearchResponse>.from((jsonDecode(res.data!)
-            .map((model) => AccountSearchResponse.fromJson(model))));
+        accounts = r;
       });
+
       account = accounts[0];
       NotifySearchRequest req = NotifySearchRequest();
       String formattedDate = DateFormat('dd/MM/yyyy').format(DateTime.now());
@@ -144,14 +150,29 @@ class _HomeViewState extends State<HomeView> with TickerProviderStateMixin {
                     )
                   ]),
               InkWell(
-                onTap: () {
-                  bottomSheet(context, accounts);
-                },
-                child: Column(children: [
-                  textAccount(account != null ? account!.name! : ""),
-                  textAccount(account != null ? account!.accoumtNumber! : ""),
-                ]),
-              )
+                  onTap: () {
+                    bottomSheet(context, accounts);
+                  },
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Column(
+                        children: [
+                          textAccount(account != null ? account!.name! : ""),
+                          textAccount(
+                              account != null ? account!.accoumtNumber! : ""),
+                        ],
+                      ),
+                      Padding(
+                        padding: EdgeInsets.only(left: 20),
+                        child: Icon(
+                          Ionicons.chevron_down,
+                          size: 20,
+                          color: Colors.white,
+                        ),
+                      )
+                    ],
+                  ))
             ],
           ),
           height: 150,
