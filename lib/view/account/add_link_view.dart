@@ -4,7 +4,10 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';
+import 'package:meepay_app/controller/account_controller.dart';
 import 'package:meepay_app/controller/dictionary_controller.dart';
+import 'package:meepay_app/models/request/account_add_request.dart';
+import 'package:meepay_app/models/request/dialog_notify_sucess.dart';
 import 'package:meepay_app/models/response/dictionary_response.dart';
 import 'package:meepay_app/models/response/response_object.dart';
 import 'package:meepay_app/models/response/user_profile.dart';
@@ -14,6 +17,7 @@ import 'package:meepay_app/utils/common.dart';
 import 'package:meepay_app/utils/dialog_process.dart';
 import 'package:meepay_app/utils/dialog_widget_bank.dart';
 import 'package:meepay_app/utils/scaffold_messger.dart';
+import 'package:meepay_app/view/main/scanqr_view.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AddLinkView extends StatefulWidget {
@@ -25,11 +29,14 @@ class AddLinkView extends StatefulWidget {
 
 class _AddLinkViewState extends State<AddLinkView> {
   final DictionaryController con = DictionaryController();
+  final AccountController conAcc = AccountController();
+
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
   final TextEditingController _accNumber = TextEditingController();
   final TextEditingController _accNameNumber = TextEditingController();
   final TextEditingController _accPIDNumber = TextEditingController();
   final TextEditingController _email = TextEditingController();
+  final TextEditingController _serial = TextEditingController();
 
   SharedPreferences? prefs;
   UserProfile? userProfile;
@@ -71,7 +78,7 @@ class _AddLinkViewState extends State<AddLinkView> {
     }
   }
 
-  addLink() {
+  addLink() async {
     if (selectedBank == null) {
       showMessage("Vui lòng chọn ngân hàng", "99", 3);
       return;
@@ -80,12 +87,35 @@ class _AddLinkViewState extends State<AddLinkView> {
     if (!isValid) {
       return;
     }
+
+    AccountAddNewRequest req = AccountAddNewRequest();
+    req.accountNumber = _accNumber.text;
+    req.bankID = selectedBank!.iD;
+    req.merchantID = userProfile!.merchantID;
+    req.email = _email.text;
+    req.mobileNumber = userProfile!.phoneNumber;
+    req.name = _accNameNumber.text;
+    req.pIDNumber = _accPIDNumber.text;
+    req.serial = _serial.text;
+    if (mounted) showProcess(context);
+
+    ResponseObject res = await conAcc.addLink(req);
+    if (context.mounted) Navigator.pop(context);
+    if (res.code == "00") {
+      if (mounted) {
+        dialogBuilderSucess(
+            context, "Thông báo", "Thêm mới liên kết tài khoản thành công");
+      }
+    } else {
+      if (mounted) {
+        showMessage(res.message!, "99", 5);
+      }
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        resizeToAvoidBottomInset: false,
         backgroundColor: ColorMP.ColorBackground,
         appBar: AppBar(
           backgroundColor: ColorMP.ColorPrimary,
@@ -101,45 +131,50 @@ class _AddLinkViewState extends State<AddLinkView> {
         ),
         body: Form(
           key: formKey,
-          child: SingleChildScrollView(
-              child: Column(
-            children: [
-              Container(
-                margin: EdgeInsets.all(8),
-                padding: EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(8),
-                  boxShadow: [boxShadow()],
-                ),
-                child: buildAccount(),
-              ),
-              Container(
-                margin: EdgeInsets.only(right: 8, left: 8),
-                padding: EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(8),
-                  boxShadow: [boxShadow()],
-                ),
-                child: buildDevice(),
-              ),
-              InkWell(
-                  onTap: addLink,
-                  child: Container(
-                      alignment: Alignment.center,
-                      height: 40,
-                      margin: const EdgeInsets.all(8),
+          child: CustomScrollView(
+            slivers: [
+              SliverToBoxAdapter(
+                child: Column(
+                  children: [
+                    Container(
+                      margin: EdgeInsets.all(8),
+                      padding: EdgeInsets.all(8),
                       decoration: BoxDecoration(
-                          color: ColorMP.ColorAccent,
-                          borderRadius: BorderRadius.circular(8),
-                          border: Border.all(color: ColorMP.ColorAccent)),
-                      child: Text("Cập nhật",
-                          style: TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.w600))))
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(8),
+                        boxShadow: [boxShadow()],
+                      ),
+                      child: buildAccount(),
+                    ),
+                    Container(
+                      margin: EdgeInsets.only(right: 8, left: 8),
+                      padding: EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(8),
+                        boxShadow: [boxShadow()],
+                      ),
+                      child: buildDevice(),
+                    ),
+                    InkWell(
+                        onTap: addLink,
+                        child: Container(
+                            alignment: Alignment.center,
+                            height: 40,
+                            margin: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                                color: ColorMP.ColorAccent,
+                                borderRadius: BorderRadius.circular(8),
+                                border: Border.all(color: ColorMP.ColorAccent)),
+                            child: Text("Cập nhật",
+                                style: TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.w600))))
+                  ],
+                ),
+              )
             ],
-          )),
+          ),
         ));
   }
 
@@ -162,7 +197,6 @@ class _AddLinkViewState extends State<AddLinkView> {
   Widget buildAccount() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
-      mainAxisSize: MainAxisSize.min,
       children: [
         textValue("Thông tin tài khoản"),
         SizedBox(
@@ -259,6 +293,7 @@ class _AddLinkViewState extends State<AddLinkView> {
         TextFormField(
           autovalidateMode: AutovalidateMode.onUserInteraction,
           controller: _accPIDNumber,
+          keyboardType: TextInputType.number,
           decoration: InputDecoration(
               border: OutlineInputBorder(),
               hintText: "CCCD/Hộ chiếu",
@@ -279,7 +314,7 @@ class _AddLinkViewState extends State<AddLinkView> {
           height: 4,
         ),
         TextField(
-            controller: _accPIDNumber,
+            controller: _email,
             decoration: InputDecoration(
                 border: OutlineInputBorder(),
                 hintText: "Email",
@@ -307,7 +342,7 @@ class _AddLinkViewState extends State<AddLinkView> {
               Expanded(
                   child: TextFormField(
                 autovalidateMode: AutovalidateMode.onUserInteraction,
-                controller: _accNameNumber,
+                controller: _serial,
                 decoration: InputDecoration(
                     border: OutlineInputBorder(),
                     hintText: "Mã thiết bị (Serial)",
@@ -321,7 +356,18 @@ class _AddLinkViewState extends State<AddLinkView> {
                 },
               )),
               InkWell(
-                onTap: () {},
+                onTap: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => ScanQRCode(
+                                onCallBack: (value) {
+                                  setState(() {
+                                    _serial.text = value;
+                                  });
+                                },
+                              )));
+                },
                 child: Container(
                   margin: EdgeInsets.only(left: 4),
                   width: 40,

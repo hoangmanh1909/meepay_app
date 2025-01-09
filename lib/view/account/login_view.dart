@@ -44,6 +44,11 @@ class _LoginViewState extends State<LoginView> {
   }
 
   login() async {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (BuildContext context) => OTPView()),
+    );
+    return;
     // if (mobileNumber.text == "") {
     //   showMessage("Vui lòng nhập số điện thoại", "99", 3);
     //   return;

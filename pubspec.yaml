@@ -49,6 +49,7 @@ dependencies:
   flutter_localization: ^0.2.1
   flutter_localizations:
     sdk: flutter
+  flutter_otp_text_field: ^1.4.0+2
 
 dev_dependencies:
   flutter_test:
