@@ -11,6 +11,7 @@ import 'package:meepay_app/models/response/user_profile.dart';
 import 'package:meepay_app/utils/color_mp.dart';
 import 'package:meepay_app/utils/dialog_process.dart';
 import 'package:meepay_app/utils/scaffold_messger.dart';
+import 'package:meepay_app/view/account/otp_view.dart';
 import 'package:meepay_app/view/account/register_view.dart';
 import 'package:meepay_app/view/main/main_view.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -44,20 +45,6 @@ class _LoginViewState extends State<LoginView> {
   }
 
   login() async {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (BuildContext context) => OTPView()),
-    );
-    return;
-    // if (mobileNumber.text == "") {
-    //   showMessage("Vui lòng nhập số điện thoại", "99", 3);
-    //   return;
-    // }
-
-    // if (password.text == "") {
-    //   showMessage("Vui lòng nhập mật khẩu", "99", 3);
-    //   return;
-    // }
     final isValid = formKey.currentState!.validate();
     if (!isValid) {
       return;

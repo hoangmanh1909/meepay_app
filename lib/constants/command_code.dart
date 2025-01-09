@@ -15,4 +15,5 @@ class CommandCode {
   static String DIC_BANK = "DIC_BANK";
   static String USER_CHANGE_PASSWORD = "USER_CHANGE_PASSWORD";
   static String DEVICE_CHANGE_LINK = "DEVICE_CHANGE_LINK";
+  static String ACCOUNT_VERIFY = "ACCOUNT_VERIFY";
 }

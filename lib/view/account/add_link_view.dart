@@ -17,6 +17,7 @@ import 'package:meepay_app/utils/common.dart';
 import 'package:meepay_app/utils/dialog_process.dart';
 import 'package:meepay_app/utils/dialog_widget_bank.dart';
 import 'package:meepay_app/utils/scaffold_messger.dart';
+import 'package:meepay_app/view/account/otp_view.dart';
 import 'package:meepay_app/view/main/scanqr_view.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -103,8 +104,14 @@ class _AddLinkViewState extends State<AddLinkView> {
     if (context.mounted) Navigator.pop(context);
     if (res.code == "00") {
       if (mounted) {
-        dialogBuilderSucess(
-            context, "Thông báo", "Thêm mới liên kết tài khoản thành công");
+        final v = jsonDecode(res.data!);
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (BuildContext context) => OTPView(code: v["Code"])),
+        );
+        // dialogBuilderSucess(
+        // context, "Thông báo", "Thêm mới liên kết tài khoản thành công");
       }
     } else {
       if (mounted) {

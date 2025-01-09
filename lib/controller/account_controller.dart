@@ -6,6 +6,7 @@ import 'package:meepay_app/models/request/account_add_request.dart';
 import 'package:meepay_app/models/request/account_search_request.dart';
 import 'package:meepay_app/models/request/base_request.dart';
 import 'package:meepay_app/models/request/change_link_request.dart';
+import 'package:meepay_app/models/request/verify_otp_request.dart';
 import 'package:meepay_app/models/response/response_object.dart';
 import 'package:mvc_pattern/mvc_pattern.dart';
 
@@ -37,6 +38,12 @@ class AccountController extends ControllerMVC {
         code: CommandCode.ACCOUNT_BANK_ADD_NEW,
         data: jsonEncode(req),
         signature: "");
+    return await apiClient.execute(baseRequest);
+  }
+
+  Future<ResponseObject> verifyOtp(VerifyOTPRequest req) async {
+    RequestObject baseRequest = RequestObject(
+        code: CommandCode.ACCOUNT_VERIFY, data: jsonEncode(req), signature: "");
     return await apiClient.execute(baseRequest);
   }
 }
