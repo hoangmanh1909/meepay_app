@@ -1,5 +1,8 @@
+// ignore_for_file: prefer_const_constructors
+
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart' as intl;
+import 'package:meepay_app/utils/box_shadow.dart';
 import 'package:meepay_app/utils/dimen.dart';
 
 String formatAmount(dynamic amount) {
@@ -48,5 +51,13 @@ Widget textValue(String mes) {
     mes,
     style: const TextStyle(
         fontSize: Dimen.fontSizeValue, fontWeight: FontWeight.w600),
+  );
+}
+
+BoxDecoration decorationMP() {
+  return BoxDecoration(
+    color: Colors.white,
+    boxShadow: [boxShadow()],
+    borderRadius: BorderRadius.all(Radius.circular(8)),
   );
 }

@@ -120,127 +120,138 @@ class _ShopViewState extends State<ShopView> {
               )
             ]),
         body: Column(
-          children: [buildAccount(), buildLink()],
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            buildAccount(),
+            buildLink(),
+          ],
         ));
   }
 
   bool isNotify = true;
   Widget buildAccount() {
     if (accounts.isNotEmpty) {
-      AccountSearchResponse item = accounts[0];
+      return ListView.builder(
+        shrinkWrap: true,
+        itemCount: accounts.length,
+        scrollDirection: Axis.vertical,
+        itemBuilder: (context, index) {
+          AccountSearchResponse item = accounts[index];
 
-      return Container(
-        margin: const EdgeInsets.all(8),
-        padding: const EdgeInsets.all(8),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(8),
-          boxShadow: [boxShadow()],
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          return Container(
+            margin: const EdgeInsets.all(8),
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(8),
+              boxShadow: [boxShadow()],
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
               children: [
                 Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Icon(
-                      Icons.account_balance_outlined,
-                      size: 20,
+                    Row(
+                      children: [
+                        const Icon(
+                          Icons.account_balance_outlined,
+                          size: 20,
+                        ),
+                        const SizedBox(
+                          width: 10,
+                        ),
+                        textLabel("Ngân hàng"),
+                      ],
                     ),
-                    const SizedBox(
-                      width: 10,
-                    ),
-                    textLabel("Ngân hàng"),
+                    textValue(item.bankName!)
                   ],
                 ),
-                textValue(item.bankName!)
-              ],
-            ),
-            const SizedBox(
-              height: 14,
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
+                const SizedBox(
+                  height: 14,
+                ),
                 Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Icon(
-                      Ionicons.card_outline,
-                      size: 20,
+                    Row(
+                      children: [
+                        const Icon(
+                          Ionicons.card_outline,
+                          size: 20,
+                        ),
+                        const SizedBox(
+                          width: 10,
+                        ),
+                        textLabel("Số tài khoản"),
+                      ],
                     ),
-                    const SizedBox(
-                      width: 10,
-                    ),
-                    textLabel("Số tài khoản"),
+                    textValue(item.accoumtNumber!)
                   ],
                 ),
-                textValue(item.accoumtNumber!)
-              ],
-            ),
-            const SizedBox(
-              height: 14,
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
+                const SizedBox(
+                  height: 14,
+                ),
                 Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Icon(
-                      Ionicons.person_outline,
-                      size: 20,
+                    Row(
+                      children: [
+                        const Icon(
+                          Ionicons.person_outline,
+                          size: 20,
+                        ),
+                        const SizedBox(
+                          width: 10,
+                        ),
+                        textLabel("Chủ tài khoản"),
+                      ],
                     ),
-                    const SizedBox(
-                      width: 10,
-                    ),
-                    textLabel("Chủ tài khoản"),
+                    textValue(item.name!)
                   ],
                 ),
-                textValue(item.name!)
-              ],
-            ),
-            const Divider(
-              height: 28,
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
+                const Divider(
+                  height: 28,
+                ),
                 Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Icon(
-                      Ionicons.megaphone_outline,
-                      size: 20,
-                      color: ColorMP.ColorAccent,
+                    Row(
+                      children: [
+                        const Icon(
+                          Ionicons.megaphone_outline,
+                          size: 20,
+                          color: ColorMP.ColorAccent,
+                        ),
+                        const SizedBox(
+                          width: 10,
+                        ),
+                        textLabel("Nhận thông báo"),
+                      ],
                     ),
-                    const SizedBox(
-                      width: 10,
+                    Switch(
+                      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      thumbIcon: MaterialStateProperty.resolveWith<Icon?>(
+                        (Set<MaterialState> states) {
+                          if (states.contains(MaterialState.selected)) {
+                            return const Icon(Icons.check);
+                          }
+                          return const Icon(Icons.close);
+                        },
+                      ),
+                      value: isNotify,
+                      activeColor: ColorMP.ColorAccent,
+                      onChanged: (bool value) {
+                        String isLink = "Y";
+                        if (!value) isLink = "N";
+                        changeLink(item.device!.iD!, isLink, value);
+                      },
                     ),
-                    textLabel("Nhận thông báo"),
                   ],
-                ),
-                Switch(
-                  materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                  thumbIcon: MaterialStateProperty.resolveWith<Icon?>(
-                    (Set<MaterialState> states) {
-                      if (states.contains(MaterialState.selected)) {
-                        return const Icon(Icons.check);
-                      }
-                      return const Icon(Icons.close);
-                    },
-                  ),
-                  value: isNotify,
-                  activeColor: ColorMP.ColorAccent,
-                  onChanged: (bool value) {
-                    String isLink = "Y";
-                    if (!value) isLink = "N";
-                    changeLink(item.device!.iD!, isLink, value);
-                  },
                 ),
               ],
             ),
-          ],
-        ),
+          );
+        },
       );
     } else {
       return const SizedBox.shrink();

@@ -11,6 +11,7 @@ import 'package:meepay_app/models/response/user_profile.dart';
 import 'package:meepay_app/utils/color_mp.dart';
 import 'package:meepay_app/utils/dialog_process.dart';
 import 'package:meepay_app/utils/scaffold_messger.dart';
+import 'package:meepay_app/view/account/register_view.dart';
 import 'package:meepay_app/view/main/main_view.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -205,17 +206,20 @@ class _LoginViewState extends State<LoginView> {
                           Center(
                             child: InkWell(
                               onTap: () {
-                                // Navigator.push(
-                                //     context,
-                                //     MaterialPageRoute(
-                                //         builder: (context) =>
-                                //             RegisterView(type: 2)));
+                                Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) => RegisterView()));
                               },
                               child: Text(
                                 "Quên mật khẩu?",
                               ),
                             ),
                           ),
+                          SizedBox(
+                            height: 10,
+                          ),
+                          buidRegister()
                           // spinkit
                         ],
                       ),
@@ -226,5 +230,27 @@ class _LoginViewState extends State<LoginView> {
             ),
           ]),
         ));
+  }
+
+  Widget buidRegister() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Text("Bạn chưa có tài khoản?"),
+        SizedBox(
+          width: 4,
+        ),
+        InkWell(
+          onTap: () {
+            Navigator.push(context,
+                MaterialPageRoute(builder: (context) => RegisterView()));
+          },
+          child: Text(
+            "Đăng ký",
+            style: TextStyle(color: ColorMP.ColorPrimary),
+          ),
+        )
+      ],
+    );
   }
 }

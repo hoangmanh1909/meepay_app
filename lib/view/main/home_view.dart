@@ -38,7 +38,7 @@ class _HomeViewState extends State<HomeView> with TickerProviderStateMixin {
   AccountSearchResponse? account;
   int quantity = 0;
   int amount = 0;
-
+  String formattedDate = DateFormat('dd/MM/yyyy').format(DateTime.now());
   @override
   void initState() {
     super.initState();
@@ -67,18 +67,19 @@ class _HomeViewState extends State<HomeView> with TickerProviderStateMixin {
     if (mounted) showProcess(context);
     ResponseObject res = await conAcc.search(req);
     if (res.code == "00") {
-      List<AccountSearchResponse> r = List<AccountSearchResponse>.from(
-          (jsonDecode(res.data!)
-              .map((model) => AccountSearchResponse.fromJson(model))));
-      r.addAll(List<AccountSearchResponse>.from((jsonDecode(res.data!)
-          .map((model) => AccountSearchResponse.fromJson(model)))));
+      // List<AccountSearchResponse> r = List<AccountSearchResponse>.from(
+      //     (jsonDecode(res.data!)
+      //         .map((model) => AccountSearchResponse.fromJson(model))));
+      // r.addAll(List<AccountSearchResponse>.from((jsonDecode(res.data!)
+      //     .map((model) => AccountSearchResponse.fromJson(model)))));
       setState(() {
-        accounts = r;
+        accounts = List<AccountSearchResponse>.from((jsonDecode(res.data!)
+            .map((model) => AccountSearchResponse.fromJson(model))));
       });
 
       account = accounts[0];
       NotifySearchRequest req = NotifySearchRequest();
-      String formattedDate = DateFormat('dd/MM/yyyy').format(DateTime.now());
+
       req.fromDate = formattedDate;
       req.toDate = formattedDate;
       // req.accountID = item.iD;
@@ -151,7 +152,14 @@ class _HomeViewState extends State<HomeView> with TickerProviderStateMixin {
                   ]),
               InkWell(
                   onTap: () {
-                    bottomSheet(context, accounts);
+                    bottomSheet(context, accounts, (v) {
+                      if (mounted) {
+                        Navigator.pop(context);
+                        account = v;
+                        NotifySearchRequest req = NotifySearchRequest();
+                        getNotify(req);
+                      }
+                    });
                   },
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -215,7 +223,7 @@ class _HomeViewState extends State<HomeView> with TickerProviderStateMixin {
                         Container(
                             alignment: Alignment.center,
                             child: Text(
-                              "03/01/2025 - 03/01/2025",
+                              "$formattedDate - $formattedDate",
                               style: TextStyle(fontWeight: FontWeight.w600),
                             ))
                       ],
