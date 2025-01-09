@@ -7,5 +7,5 @@ class ColorMP {
   static const Color ColorAccent = Color.fromRGBO(255, 134, 0, 1);
   static const Color ColorBackground = Color.fromRGBO(238, 237, 237, 1);
   static const Color ColorShadow = Color.fromRGBO(231, 231, 231, 1);
-  static const Color ColorSuccess = Color.fromRGBO(52, 199, 89, 1);
+  static const Color ColorSuccess = Color.fromRGBO(17, 184, 35, 1);
 }
