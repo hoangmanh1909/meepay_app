@@ -1,7 +1,9 @@
 // ignore_for_file: prefer_const_constructors, sort_child_properties_last, prefer_const_literals_to_create_immutables
 
 import 'dart:convert';
+import 'dart:math';
 
+import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:ionicons/ionicons.dart';
@@ -10,20 +12,36 @@ import 'package:meepay_app/controller/notify_controller.dart';
 import 'package:meepay_app/models/request/account_search_request.dart';
 import 'package:meepay_app/models/request/notify_search_request.dart';
 import 'package:meepay_app/models/response/account_search_response.dart';
+import 'package:meepay_app/models/response/notify_general_response.dart';
 import 'package:meepay_app/models/response/notify_search_response.dart';
 import 'package:meepay_app/models/response/response_object.dart';
 import 'package:meepay_app/models/response/user_profile.dart';
+import 'package:meepay_app/utils/app_color.dart';
 import 'package:meepay_app/utils/bottom_sheet.dart';
+import 'package:meepay_app/utils/color_extension.dart';
 import 'package:meepay_app/utils/color_mp.dart';
 import 'package:meepay_app/utils/common.dart';
 import 'package:meepay_app/utils/dialog_date.dart';
 import 'package:meepay_app/utils/dialog_process.dart';
+import 'package:meepay_app/utils/dimen.dart';
 import 'package:meepay_app/utils/scaffold_messger.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class HomeView extends StatefulWidget {
-  const HomeView({Key? key}) : super(key: key);
+  HomeView({Key? key}) : super(key: key);
+  List<Color> get availableColors => const <Color>[
+        AppColors.contentColorPurple,
+        AppColors.contentColorYellow,
+        AppColors.contentColorBlue,
+        AppColors.contentColorOrange,
+        AppColors.contentColorPink,
+        AppColors.contentColorRed,
+      ];
 
+  final Color barBackgroundColor =
+      AppColors.contentColorWhite.darken().withValues(alpha: 0.3);
+  final Color barColor = ColorMP.ColorAccent;
+  final Color touchedBarColor = AppColors.contentColorGreen;
   @override
   State<HomeView> createState() => _HomeViewState();
 }
@@ -35,10 +53,17 @@ class _HomeViewState extends State<HomeView> with TickerProviderStateMixin {
   UserProfile? userProfile;
   List<NotifySearchResponse>? notifies;
   List<AccountSearchResponse> accounts = [];
+  List<NotifyGeneralResponse>? generals;
+
+  List<BarChartGroupData> showingGroups = [];
+
   AccountSearchResponse? account;
   int quantity = 0;
   int amount = 0;
   String formattedDate = DateFormat('dd/MM/yyyy').format(DateTime.now());
+  final Duration animDuration = const Duration(milliseconds: 250);
+
+  int touchedIndex = -1;
   @override
   void initState() {
     super.initState();
@@ -66,6 +91,7 @@ class _HomeViewState extends State<HomeView> with TickerProviderStateMixin {
 
     if (mounted) showProcess(context);
     ResponseObject res = await conAcc.search(req);
+
     if (res.code == "00") {
       // List<AccountSearchResponse> r = List<AccountSearchResponse>.from(
       //     (jsonDecode(res.data!)
@@ -80,20 +106,25 @@ class _HomeViewState extends State<HomeView> with TickerProviderStateMixin {
       account = accounts[0];
       NotifySearchRequest req = NotifySearchRequest();
 
-      req.fromDate = formattedDate;
+      req.fromDate = DateFormat('dd/MM/yyyy')
+          .format(DateTime.now().add(Duration(days: -7)));
       req.toDate = formattedDate;
       // req.accountID = item.iD;
+      await getNotifyGeneral(req);
       await getNotify(req);
+      if (mounted) {
+        Navigator.pop(context);
+      }
     } else {
+      if (mounted) {
+        Navigator.pop(context);
+      }
       showMessage(res.message!, "99", 4);
-    }
-    if (mounted) {
-      Navigator.pop(context);
     }
   }
 
   getNotify(NotifySearchRequest req) async {
-    if (mounted) showProcess(context);
+    // if (mounted) showProcess(context);
 
     ResponseObject res = await con.search(req);
     if (res.code == "00") {
@@ -106,9 +137,40 @@ class _HomeViewState extends State<HomeView> with TickerProviderStateMixin {
       });
     }
 
-    if (mounted) {
-      Navigator.pop(context);
+    // if (mounted) {
+    //   Navigator.pop(context);
+    // }
+  }
+
+  getNotifyGeneral(NotifySearchRequest req) async {
+    // if (mounted) showProcess(context);
+
+    ResponseObject res = await con.general(req);
+    if (res.code == "00") {
+      generals = List<NotifyGeneralResponse>.from((jsonDecode(res.data!)
+          .map((model) => NotifyGeneralResponse.fromJson(model))));
+
+      for (int i = 0; i < generals!.length; i++) {
+        var item = generals![i];
+        showingGroups.add(makeGroupData(i, item.amount!.toDouble(),
+            isTouched: i == touchedIndex));
+      }
+      for (int i = 0; i < generals!.length; i++) {
+        var item = generals![i];
+        showingGroups.add(makeGroupData(i, item.amount!.toDouble(),
+            isTouched: i == touchedIndex));
+      }
+      for (int i = 0; i < generals!.length; i++) {
+        var item = generals![i];
+        showingGroups.add(makeGroupData(i, item.amount!.toDouble(),
+            isTouched: i == touchedIndex));
+      }
+      setState(() {});
     }
+
+    // if (mounted) {
+    //   Navigator.pop(context);
+    // }
   }
 
   @override
@@ -129,7 +191,7 @@ class _HomeViewState extends State<HomeView> with TickerProviderStateMixin {
                   shape: RoundedRectangleBorder(
                       borderRadius:
                           BorderRadius.vertical(bottom: Radius.circular(30))),
-                  title: Text("Quik Ting Ting"),
+                  title: Text("Mee Pay"),
                   actions: <Widget>[
                     IconButton(
                       icon: const Icon(
@@ -209,7 +271,7 @@ class _HomeViewState extends State<HomeView> with TickerProviderStateMixin {
                     borderRadius: BorderRadius.all(Radius.circular(8)),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.white.withOpacity(0.1),
+                        color: Colors.white.withValues(alpha: 0.1),
                         spreadRadius: 1,
                         blurRadius: 1,
                         offset: Offset(1, 1),
@@ -273,8 +335,12 @@ class _HomeViewState extends State<HomeView> with TickerProviderStateMixin {
             right: 8.0,
             bottom: 8,
             child: SingleChildScrollView(
-              child: buildNotifies(),
-            ))
+                child: Column(
+              children: [
+                buildChart(),
+                buildNotifies(),
+              ],
+            )))
       ],
     );
   }
@@ -375,6 +441,183 @@ class _HomeViewState extends State<HomeView> with TickerProviderStateMixin {
     return Text(
       mes,
       style: TextStyle(color: color, fontWeight: FontWeight.w600, fontSize: 20),
+    );
+  }
+
+  BarChartGroupData makeGroupData(
+    int x,
+    double y, {
+    bool isTouched = false,
+    Color? barColor,
+    double width = 22,
+    List<int> showTooltips = const [],
+  }) {
+    barColor ??= widget.barColor;
+    return BarChartGroupData(
+      x: x,
+      barRods: [
+        BarChartRodData(
+          toY: isTouched ? y + 1 : y,
+          color: isTouched ? widget.touchedBarColor : barColor,
+          width: width,
+          borderSide: isTouched
+              ? BorderSide(color: widget.touchedBarColor.darken(80))
+              : BorderSide(color: Colors.white, width: 0),
+          backDrawRodData: BackgroundBarChartRodData(
+            show: true,
+            toY: 20,
+            color: widget.barBackgroundColor,
+          ),
+        ),
+      ],
+      showingTooltipIndicators: showTooltips,
+    );
+  }
+
+  // List<BarChartGroupData> showingGroups() => List.generate(7, (i) {
+  //       switch (i) {
+  //         case 0:
+  //           return makeGroupData(0, 5, isTouched: i == touchedIndex);
+  //         case 1:
+  //           return makeGroupData(1, 6.5, isTouched: i == touchedIndex);
+  //         case 2:
+  //           return makeGroupData(2, 5, isTouched: i == touchedIndex);
+  //         case 3:
+  //           return makeGroupData(3, 7.5, isTouched: i == touchedIndex);
+  //         case 4:
+  //           return makeGroupData(4, 9, isTouched: i == touchedIndex);
+  //         case 5:
+  //           return makeGroupData(5, 11.5, isTouched: i == touchedIndex);
+  //         case 6:
+  //           return makeGroupData(6, 6.5, isTouched: i == touchedIndex);
+  //         default:
+  //           return throw Error();
+  //       }
+  //     });
+
+  Widget buildChart() {
+    if (generals != null) {
+      return Container(
+        height: 250,
+        width: 200,
+        margin: EdgeInsets.only(bottom: 8),
+        padding: EdgeInsets.all(Dimen.padingDefault),
+        decoration: decorationMP(),
+        child: BarChart(
+          mainBarData(),
+          duration: animDuration,
+        ),
+      );
+    }
+    return SizedBox.shrink();
+  }
+
+  BarChartData mainBarData() {
+    return BarChartData(
+      barTouchData: BarTouchData(
+        touchTooltipData: BarTouchTooltipData(
+          fitInsideVertically: true,
+          getTooltipColor: (_) => Colors.blueGrey,
+          tooltipHorizontalAlignment: FLHorizontalAlignment.center,
+          getTooltipItem: (group, groupIndex, rod, rodIndex) {
+            String weekDay;
+            switch (group.x) {
+              case 0:
+                weekDay = 'Monday';
+                break;
+              case 1:
+                weekDay = 'Tuesday';
+                break;
+              case 2:
+                weekDay = 'Wednesday';
+                break;
+              case 3:
+                weekDay = 'Thursday';
+                break;
+              case 4:
+                weekDay = 'Friday';
+                break;
+              case 5:
+                weekDay = 'Saturday';
+                break;
+              case 6:
+                weekDay = 'Sunday';
+                break;
+              default:
+                throw Error();
+            }
+            return BarTooltipItem(
+              '$weekDay\n',
+              const TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+                fontSize: 18,
+              ),
+              children: <TextSpan>[
+                TextSpan(
+                  text: formatAmount(rod.toY),
+                  style: const TextStyle(
+                    color: Colors.white, //widget.touchedBarColor,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
+            );
+          },
+        ),
+        touchCallback: (FlTouchEvent event, barTouchResponse) {
+          setState(() {
+            if (!event.isInterestedForInteractions ||
+                barTouchResponse == null ||
+                barTouchResponse.spot == null) {
+              touchedIndex = -1;
+              return;
+            }
+            touchedIndex = barTouchResponse.spot!.touchedBarGroupIndex;
+          });
+        },
+      ),
+      titlesData: FlTitlesData(
+        show: true,
+        rightTitles: const AxisTitles(
+          sideTitles: SideTitles(showTitles: false),
+        ),
+        topTitles: const AxisTitles(
+          sideTitles: SideTitles(showTitles: false),
+        ),
+        bottomTitles: AxisTitles(
+          sideTitles: SideTitles(
+            showTitles: true,
+            getTitlesWidget: getTitles,
+            reservedSize: 38,
+          ),
+        ),
+        leftTitles: const AxisTitles(
+          sideTitles: SideTitles(
+            showTitles: false,
+          ),
+        ),
+      ),
+      borderData: FlBorderData(
+        show: false,
+      ),
+      barGroups: showingGroups,
+      gridData: const FlGridData(show: false),
+    );
+  }
+
+  Widget getTitles(double value, TitleMeta meta) {
+    const style = TextStyle(
+      color: ColorMP.ColorPrimary,
+      fontWeight: FontWeight.bold,
+      fontSize: 12,
+    );
+
+    return SideTitleWidget(
+      meta: meta,
+      space: 16,
+      child: Text("13/01", style: style),
     );
   }
 }

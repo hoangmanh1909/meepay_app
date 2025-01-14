@@ -8,7 +8,6 @@ import 'package:meepay_app/models/request/login_request.dart';
 import 'package:meepay_app/models/response/response_object.dart';
 import 'package:meepay_app/models/response/token_response.dart';
 import 'package:meepay_app/models/response/user_profile.dart';
-import 'package:meepay_app/utils/box_shadow.dart';
 import 'package:meepay_app/utils/color_mp.dart';
 import 'package:meepay_app/utils/common.dart';
 import 'package:meepay_app/utils/dialog_process.dart';
@@ -44,8 +43,8 @@ class _RegisterViewState extends State<RegisterView> {
   }
 
   init() async {
-    mobileNumber.text = "0936062990";
-    password.text = "123456aA@";
+    // mobileNumber.text = "0936062990";
+    // password.text = "123456aA@";
     prefs = await SharedPreferences.getInstance();
   }
 
@@ -189,7 +188,7 @@ class _RegisterViewState extends State<RegisterView> {
                 TextFormField(
                   autovalidateMode: AutovalidateMode.onUserInteraction,
                   obscureText: _showPassword1,
-                  controller: password,
+                  controller: passwordAgain,
                   maxLength: 6,
                   keyboardType: TextInputType.number,
                   decoration: InputDecoration(
@@ -249,28 +248,6 @@ class _RegisterViewState extends State<RegisterView> {
           ),
         ),
       ),
-    );
-  }
-
-  Widget buidRegister() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Text("Bạn chưa có tài khoản?"),
-        SizedBox(
-          width: 4,
-        ),
-        InkWell(
-          onTap: () {
-            // Navigator.push(context,
-            //     MaterialPageRoute(builder: (context) => RegisterView()));
-          },
-          child: Text(
-            "Đăng ký",
-            style: TextStyle(color: ColorMP.ColorPrimary),
-          ),
-        )
-      ],
     );
   }
 }

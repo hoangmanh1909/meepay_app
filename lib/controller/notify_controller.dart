@@ -18,4 +18,10 @@ class NotifyController extends ControllerMVC {
         code: CommandCode.NOTIFY_SEARCH, data: jsonEncode(req), signature: "");
     return await apiClient.execute(baseRequest);
   }
+
+  Future<dynamic> general(NotifySearchRequest req) async {
+    RequestObject baseRequest = RequestObject(
+        code: CommandCode.NOTIFY_GENERAL, data: jsonEncode(req), signature: "");
+    return await apiClient.execute(baseRequest);
+  }
 }
