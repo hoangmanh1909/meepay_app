@@ -40,7 +40,7 @@ class _LoginViewState extends State<LoginView> {
 
   init() async {
     mobileNumber.text = "0936062990";
-    password.text = "123456aA@";
+    password.text = "12345678aA@";
     prefs = await SharedPreferences.getInstance();
   }
 

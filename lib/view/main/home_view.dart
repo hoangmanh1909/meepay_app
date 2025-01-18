@@ -1,9 +1,14 @@
 // ignore_for_file: prefer_const_constructors, sort_child_properties_last, prefer_const_literals_to_create_immutables
 
 import 'dart:convert';
-import 'dart:math';
 
-import 'package:fl_chart/fl_chart.dart';
+import 'package:d_chart/commons/axis/axis.dart';
+import 'package:d_chart/commons/config_render/config_render.dart';
+import 'package:d_chart/commons/data_model/data_model.dart';
+import 'package:d_chart/commons/layout_margin.dart';
+import 'package:d_chart/commons/style/style.dart';
+import 'package:d_chart/commons/tick/numeric_tick_provider.dart';
+import 'package:d_chart/time/bar.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:ionicons/ionicons.dart';
@@ -23,7 +28,6 @@ import 'package:meepay_app/utils/color_mp.dart';
 import 'package:meepay_app/utils/common.dart';
 import 'package:meepay_app/utils/dialog_date.dart';
 import 'package:meepay_app/utils/dialog_process.dart';
-import 'package:meepay_app/utils/dimen.dart';
 import 'package:meepay_app/utils/scaffold_messger.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -54,8 +58,7 @@ class _HomeViewState extends State<HomeView> with TickerProviderStateMixin {
   List<NotifySearchResponse>? notifies;
   List<AccountSearchResponse> accounts = [];
   List<NotifyGeneralResponse>? generals;
-
-  List<BarChartGroupData> showingGroups = [];
+  List<TimeData> dataChart = [];
 
   AccountSearchResponse? account;
   int quantity = 0;
@@ -63,13 +66,12 @@ class _HomeViewState extends State<HomeView> with TickerProviderStateMixin {
   String formattedDate = DateFormat('dd/MM/yyyy').format(DateTime.now());
   final Duration animDuration = const Duration(milliseconds: 250);
 
-  int touchedIndex = -1;
   @override
   void initState() {
-    super.initState();
     Future.delayed(Duration.zero, () {
       initPref();
     });
+    super.initState();
   }
 
   initPref() async {
@@ -152,19 +154,11 @@ class _HomeViewState extends State<HomeView> with TickerProviderStateMixin {
 
       for (int i = 0; i < generals!.length; i++) {
         var item = generals![i];
-        showingGroups.add(makeGroupData(i, item.amount!.toDouble(),
-            isTouched: i == touchedIndex));
+        dataChart.add(TimeData(
+            domain: DateFormat("dd/MM/yyyy").parse(item.transDate!),
+            measure: item.amount!));
       }
-      for (int i = 0; i < generals!.length; i++) {
-        var item = generals![i];
-        showingGroups.add(makeGroupData(i, item.amount!.toDouble(),
-            isTouched: i == touchedIndex));
-      }
-      for (int i = 0; i < generals!.length; i++) {
-        var item = generals![i];
-        showingGroups.add(makeGroupData(i, item.amount!.toDouble(),
-            isTouched: i == touchedIndex));
-      }
+
       setState(() {});
     }
 
@@ -345,6 +339,63 @@ class _HomeViewState extends State<HomeView> with TickerProviderStateMixin {
     );
   }
 
+  Widget buildChart() {
+    if (generals != null && generals!.isNotEmpty) {
+      Container(
+          padding: EdgeInsets.all(10),
+          width: MediaQuery.of(context).size.width,
+          height: MediaQuery.of(context).size.width - 50,
+          child: SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: AspectRatio(
+              aspectRatio: 16 / 9,
+              child: DChartBarT(
+                layoutMargin: LayoutMargin(40, 10, 10, 10),
+                configRenderBar: ConfigRenderBar(
+                  radius: 4,
+                ),
+                onUpdatedListener: (data) {
+                  String sss = "";
+                },
+                domainAxis: DomainAxis(
+                  showLine: true,
+                  lineStyle: LineStyle(color: Colors.grey.shade200),
+                  tickLength: 0,
+                  gapAxisToLabel: 12,
+                  labelStyle: const LabelStyle(
+                    fontSize: 10,
+                    color: Colors.black54,
+                  ),
+                  tickLabelFormatterT: (domain) {
+                    return DateFormat.MMM().format(domain);
+                  },
+                ),
+                measureAxis: const MeasureAxis(
+                  gapAxisToLabel: 8,
+                  numericTickProvider: NumericTickProvider(
+                    desiredMinTickCount: 5,
+                    desiredMaxTickCount: 10,
+                  ),
+                  tickLength: 0,
+                  labelStyle: LabelStyle(
+                    fontSize: 10,
+                    color: Colors.black54,
+                  ),
+                ),
+                groupList: [
+                  TimeGroup(
+                    id: '1',
+                    data: dataChart,
+                    color: Colors.deepPurple.shade100,
+                  ),
+                ],
+              ),
+            ),
+          ));
+    }
+    return SizedBox.shrink();
+  }
+
   Widget buildNotifies() {
     if (notifies != null) {
       return Column(
@@ -441,183 +492,6 @@ class _HomeViewState extends State<HomeView> with TickerProviderStateMixin {
     return Text(
       mes,
       style: TextStyle(color: color, fontWeight: FontWeight.w600, fontSize: 20),
-    );
-  }
-
-  BarChartGroupData makeGroupData(
-    int x,
-    double y, {
-    bool isTouched = false,
-    Color? barColor,
-    double width = 22,
-    List<int> showTooltips = const [],
-  }) {
-    barColor ??= widget.barColor;
-    return BarChartGroupData(
-      x: x,
-      barRods: [
-        BarChartRodData(
-          toY: isTouched ? y + 1 : y,
-          color: isTouched ? widget.touchedBarColor : barColor,
-          width: width,
-          borderSide: isTouched
-              ? BorderSide(color: widget.touchedBarColor.darken(80))
-              : BorderSide(color: Colors.white, width: 0),
-          backDrawRodData: BackgroundBarChartRodData(
-            show: true,
-            toY: 20,
-            color: widget.barBackgroundColor,
-          ),
-        ),
-      ],
-      showingTooltipIndicators: showTooltips,
-    );
-  }
-
-  // List<BarChartGroupData> showingGroups() => List.generate(7, (i) {
-  //       switch (i) {
-  //         case 0:
-  //           return makeGroupData(0, 5, isTouched: i == touchedIndex);
-  //         case 1:
-  //           return makeGroupData(1, 6.5, isTouched: i == touchedIndex);
-  //         case 2:
-  //           return makeGroupData(2, 5, isTouched: i == touchedIndex);
-  //         case 3:
-  //           return makeGroupData(3, 7.5, isTouched: i == touchedIndex);
-  //         case 4:
-  //           return makeGroupData(4, 9, isTouched: i == touchedIndex);
-  //         case 5:
-  //           return makeGroupData(5, 11.5, isTouched: i == touchedIndex);
-  //         case 6:
-  //           return makeGroupData(6, 6.5, isTouched: i == touchedIndex);
-  //         default:
-  //           return throw Error();
-  //       }
-  //     });
-
-  Widget buildChart() {
-    if (generals != null) {
-      return Container(
-        height: 250,
-        width: 200,
-        margin: EdgeInsets.only(bottom: 8),
-        padding: EdgeInsets.all(Dimen.padingDefault),
-        decoration: decorationMP(),
-        child: BarChart(
-          mainBarData(),
-          duration: animDuration,
-        ),
-      );
-    }
-    return SizedBox.shrink();
-  }
-
-  BarChartData mainBarData() {
-    return BarChartData(
-      barTouchData: BarTouchData(
-        touchTooltipData: BarTouchTooltipData(
-          fitInsideVertically: true,
-          getTooltipColor: (_) => Colors.blueGrey,
-          tooltipHorizontalAlignment: FLHorizontalAlignment.center,
-          getTooltipItem: (group, groupIndex, rod, rodIndex) {
-            String weekDay;
-            switch (group.x) {
-              case 0:
-                weekDay = 'Monday';
-                break;
-              case 1:
-                weekDay = 'Tuesday';
-                break;
-              case 2:
-                weekDay = 'Wednesday';
-                break;
-              case 3:
-                weekDay = 'Thursday';
-                break;
-              case 4:
-                weekDay = 'Friday';
-                break;
-              case 5:
-                weekDay = 'Saturday';
-                break;
-              case 6:
-                weekDay = 'Sunday';
-                break;
-              default:
-                throw Error();
-            }
-            return BarTooltipItem(
-              '$weekDay\n',
-              const TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-                fontSize: 18,
-              ),
-              children: <TextSpan>[
-                TextSpan(
-                  text: formatAmount(rod.toY),
-                  style: const TextStyle(
-                    color: Colors.white, //widget.touchedBarColor,
-                    fontSize: 16,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ],
-            );
-          },
-        ),
-        touchCallback: (FlTouchEvent event, barTouchResponse) {
-          setState(() {
-            if (!event.isInterestedForInteractions ||
-                barTouchResponse == null ||
-                barTouchResponse.spot == null) {
-              touchedIndex = -1;
-              return;
-            }
-            touchedIndex = barTouchResponse.spot!.touchedBarGroupIndex;
-          });
-        },
-      ),
-      titlesData: FlTitlesData(
-        show: true,
-        rightTitles: const AxisTitles(
-          sideTitles: SideTitles(showTitles: false),
-        ),
-        topTitles: const AxisTitles(
-          sideTitles: SideTitles(showTitles: false),
-        ),
-        bottomTitles: AxisTitles(
-          sideTitles: SideTitles(
-            showTitles: true,
-            getTitlesWidget: getTitles,
-            reservedSize: 38,
-          ),
-        ),
-        leftTitles: const AxisTitles(
-          sideTitles: SideTitles(
-            showTitles: false,
-          ),
-        ),
-      ),
-      borderData: FlBorderData(
-        show: false,
-      ),
-      barGroups: showingGroups,
-      gridData: const FlGridData(show: false),
-    );
-  }
-
-  Widget getTitles(double value, TitleMeta meta) {
-    const style = TextStyle(
-      color: ColorMP.ColorPrimary,
-      fontWeight: FontWeight.bold,
-      fontSize: 12,
-    );
-
-    return SideTitleWidget(
-      meta: meta,
-      space: 16,
-      child: Text("13/01", style: style),
     );
   }
 }

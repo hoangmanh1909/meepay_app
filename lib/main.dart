@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:meepay_app/sample/d_chart_view.dart';
 import 'package:meepay_app/view/account/login_view.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
@@ -22,7 +23,7 @@ class MyApp extends StatelessWidget {
       supportedLocales: const [
         Locale('vi', ''),
       ],
-      home: const LoginView(),
+      home: const DChartView(),
     );
   }
 }

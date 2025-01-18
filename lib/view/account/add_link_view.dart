@@ -33,6 +33,7 @@ class _AddLinkViewState extends State<AddLinkView> {
   final AccountController conAcc = AccountController();
 
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
+  final TextEditingController _accMobile = TextEditingController();
   final TextEditingController _accNumber = TextEditingController();
   final TextEditingController _accNameNumber = TextEditingController();
   final TextEditingController _accPIDNumber = TextEditingController();
@@ -58,6 +59,7 @@ class _AddLinkViewState extends State<AddLinkView> {
     if (userMap != null) {
       setState(() {
         userProfile = UserProfile.fromJson(jsonDecode(userMap));
+        _accMobile.text = userProfile!.phoneNumber!;
       });
       getBank();
     }
@@ -94,7 +96,7 @@ class _AddLinkViewState extends State<AddLinkView> {
     req.bankID = selectedBank!.iD;
     req.merchantID = userProfile!.merchantID;
     req.email = _email.text;
-    req.mobileNumber = userProfile!.phoneNumber;
+    req.mobileNumber = _accMobile.text;
     req.name = _accNameNumber.text;
     req.pIDNumber = _accPIDNumber.text;
     req.serial = _serial.text;
@@ -244,6 +246,29 @@ class _AddLinkViewState extends State<AddLinkView> {
                   ),
                 ]),
           ),
+        ),
+        SizedBox(
+          height: 10,
+        ),
+        textLabelRequired("Số điện thoại"),
+        SizedBox(
+          height: 4,
+        ),
+        TextFormField(
+          autovalidateMode: AutovalidateMode.onUserInteraction,
+          controller: _accMobile,
+          decoration: InputDecoration(
+            border: OutlineInputBorder(),
+            hintText: "Số điện thoại",
+            contentPadding: EdgeInsets.all(10),
+            isDense: true,
+          ),
+          validator: (text) {
+            if (text == null || text.isEmpty) {
+              return "Vui lòng nhập Số điện thoại";
+            }
+            return null;
+          },
         ),
         SizedBox(
           height: 10,

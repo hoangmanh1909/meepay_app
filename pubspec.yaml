@@ -50,8 +50,7 @@ dependencies:
   flutter_localizations:
     sdk: flutter
   flutter_otp_text_field: ^1.4.0+2
-  fl_chart: ^0.70.1
-  syncfusion_flutter_charts: ^28.1.38
+  d_chart: ^2.10.2
 
 dev_dependencies:
   flutter_test:
@@ -81,6 +80,7 @@ flutter:
   #   - images/a_dot_ham.jpeg
   assets:
     - assets/img/
+    - assets/data/
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware
 
