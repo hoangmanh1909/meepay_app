@@ -97,28 +97,13 @@ class _ShopViewState extends State<ShopView> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-            backgroundColor: ColorMP.ColorPrimary,
-            automaticallyImplyLeading: false,
-            centerTitle: true,
-            titleTextStyle: const TextStyle(
-                color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
-            title: const Text("Tài khoản liên kết"),
-            actions: <Widget>[
-              IconButton(
-                icon: const Icon(
-                  Ionicons.person_circle_outline,
-                  color: Colors.white,
-                ),
-                onPressed: () {
-                  Future.delayed(Duration.zero, () {
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => const UserView()));
-                  });
-                },
-              )
-            ]),
+          backgroundColor: ColorMP.ColorPrimary,
+          automaticallyImplyLeading: false,
+          centerTitle: true,
+          titleTextStyle: const TextStyle(
+              color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+          title: const Text("Tài khoản liên kết"),
+        ),
         body: Column(
           mainAxisSize: MainAxisSize.min,
           children: [

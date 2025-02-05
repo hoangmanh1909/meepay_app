@@ -23,8 +23,8 @@ class _MainViewState extends State<MainView> {
       title: 'Thông báo',
     ),
     TabItem(
-      icon: Ionicons.storefront_outline,
-      title: 'Cửa hàng',
+      icon: Ionicons.card_outline,
+      title: 'Tài khoản',
     ),
   ];
   final List<Widget> _widgetOptions = <Widget>[HomeView(), ShopView()];

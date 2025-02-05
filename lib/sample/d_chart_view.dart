@@ -60,7 +60,7 @@ class _DChartViewState extends State<DChartView> {
       body: Container(
           padding: EdgeInsets.all(10),
           width: MediaQuery.of(context).size.width,
-          height: MediaQuery.of(context).size.width - 50,
+          height: MediaQuery.of(context).size.width,
           child: SingleChildScrollView(
             scrollDirection: Axis.horizontal,
             child: AspectRatio(
@@ -79,7 +79,7 @@ class _DChartViewState extends State<DChartView> {
                   String sss = "";
                 },
                 domainAxis: DomainAxis(
-                  showLine: true,
+                  showLine: false,
                   lineStyle: LineStyle(color: Colors.grey.shade200),
                   tickLength: 0,
                   gapAxisToLabel: 12,
@@ -91,6 +91,9 @@ class _DChartViewState extends State<DChartView> {
                     return DateFormat.MMM().format(domain);
                   },
                 ),
+                // measureAxis: const MeasureAxis(
+                //   noRenderSpec: true,
+                // ),
                 measureAxis: const MeasureAxis(
                   gapAxisToLabel: 8,
                   numericTickProvider: NumericTickProvider(
