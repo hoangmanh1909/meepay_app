@@ -63,7 +63,7 @@ class _UserViewState extends State<UserView> {
           centerTitle: true,
           titleTextStyle: const TextStyle(
               color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
-          title: const Text("Thông tin tài khoản"),
+          title: const Text("Thông tin cá nhân"),
           leading: IconButton(
             icon: const Icon(Icons.arrow_back, color: Colors.white),
             onPressed: () => Navigator.of(context).pop(),

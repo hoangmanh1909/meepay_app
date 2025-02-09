@@ -5,9 +5,12 @@ import 'dart:convert';
 import 'package:d_chart/commons/axis/axis.dart';
 import 'package:d_chart/commons/config_render/config_render.dart';
 import 'package:d_chart/commons/data_model/data_model.dart';
+import 'package:d_chart/commons/decorator/decorator.dart';
 import 'package:d_chart/commons/layout_margin.dart';
 import 'package:d_chart/commons/style/style.dart';
 import 'package:d_chart/commons/tick/numeric_tick_provider.dart';
+import 'package:d_chart/commons/viewport.dart';
+import 'package:d_chart/d_chart.dart';
 import 'package:d_chart/time/bar.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -28,6 +31,7 @@ import 'package:meepay_app/utils/common.dart';
 import 'package:meepay_app/utils/dialog_date.dart';
 import 'package:meepay_app/utils/dialog_process.dart';
 import 'package:meepay_app/utils/scaffold_messger.dart';
+import 'package:meepay_app/view/account/user_info_view.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class HomeView extends StatefulWidget {
@@ -45,13 +49,16 @@ class _HomeViewState extends State<HomeView> with TickerProviderStateMixin {
   List<NotifySearchResponse>? notifies;
   List<AccountSearchResponse> accounts = [];
   List<NotifyGeneralResponse>? generals;
-  List<TimeData> dataChart = [];
+  List<OrdinalData> dataChart = [];
+  String startDomain = "";
 
   AccountSearchResponse? account;
   int quantity = 0;
   int amount = 0;
-  String formattedDate = DateFormat('dd/MM/yyyy').format(DateTime.now());
+  String fromDate =
+      DateFormat('dd/MM/yyyy').format(DateTime.now().add(Duration(days: -22)));
   final Duration animDuration = const Duration(milliseconds: 250);
+  String toDate = DateFormat('dd/MM/yyyy').format(DateTime.now());
 
   @override
   void initState() {
@@ -95,12 +102,17 @@ class _HomeViewState extends State<HomeView> with TickerProviderStateMixin {
       account = accounts[0];
       NotifySearchRequest req = NotifySearchRequest();
 
-      req.fromDate = DateFormat('dd/MM/yyyy')
-          .format(DateTime.now().add(Duration(days: -7)));
-      req.toDate = formattedDate;
+      req.fromDate = fromDate;
+      req.toDate = toDate;
       // req.accountID = item.iD;
       await getNotifyGeneral(req);
-      await getNotify(req);
+
+      if (startDomain.isNotEmpty) {
+        req = NotifySearchRequest();
+        req.fromDate = startDomain;
+        req.toDate = startDomain;
+        await getNotify(req);
+      }
       if (mounted) {
         Navigator.pop(context);
       }
@@ -112,9 +124,26 @@ class _HomeViewState extends State<HomeView> with TickerProviderStateMixin {
     }
   }
 
-  getNotify(NotifySearchRequest req) async {
-    // if (mounted) showProcess(context);
+  getNotifyGeneral(NotifySearchRequest req) async {
+    dataChart.clear();
+    ResponseObject res = await con.general(req);
+    if (res.code == "00") {
+      generals = List<NotifyGeneralResponse>.from((jsonDecode(res.data!)
+          .map((model) => NotifyGeneralResponse.fromJson(model))));
+      startDomain = generals![0].transDate!;
+      for (int i = 0; i < generals!.length; i++) {
+        var item = generals![i];
+        dataChart.add(OrdinalData(
+            domain: item.transDate!.substring(0, 5),
+            measure: item.amount!,
+            other: item.transDate));
+      }
 
+      setState(() {});
+    }
+  }
+
+  getNotify(NotifySearchRequest req) async {
     ResponseObject res = await con.search(req);
     if (res.code == "00") {
       setState(() {
@@ -125,37 +154,11 @@ class _HomeViewState extends State<HomeView> with TickerProviderStateMixin {
             .fold(0, (previous, current) => previous + current.amount!);
       });
     }
-
-    // if (mounted) {
-    //   Navigator.pop(context);
-    // }
-  }
-
-  getNotifyGeneral(NotifySearchRequest req) async {
-    // if (mounted) showProcess(context);
-
-    ResponseObject res = await con.general(req);
-    if (res.code == "00") {
-      generals = List<NotifyGeneralResponse>.from((jsonDecode(res.data!)
-          .map((model) => NotifyGeneralResponse.fromJson(model))));
-
-      for (int i = 0; i < generals!.length; i++) {
-        var item = generals![i];
-        dataChart.add(TimeData(
-            domain: DateFormat("dd/MM/yyyy").parse(item.transDate!),
-            measure: item.amount!));
-      }
-
-      setState(() {});
-    }
-
-    // if (mounted) {
-    //   Navigator.pop(context);
-    // }
   }
 
   @override
   Widget build(BuildContext context) {
+    var size = MediaQuery.of(context).size;
     return Stack(
       children: <Widget>[
         Container(
@@ -163,8 +166,6 @@ class _HomeViewState extends State<HomeView> with TickerProviderStateMixin {
             children: [
               AppBar(
                   backgroundColor: ColorMP.ColorPrimary,
-                  automaticallyImplyLeading: false,
-                  centerTitle: true,
                   titleTextStyle: const TextStyle(
                       color: Colors.white,
                       fontSize: 16,
@@ -172,7 +173,46 @@ class _HomeViewState extends State<HomeView> with TickerProviderStateMixin {
                   shape: RoundedRectangleBorder(
                       borderRadius:
                           BorderRadius.vertical(bottom: Radius.circular(30))),
-                  title: Text("Mee Pay"),
+                  leadingWidth: size.width - 100,
+                  leading: InkWell(
+                    onTap: () {
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => const UserView()));
+                    },
+                    child: Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 10),
+                        child: Row(
+                          children: [
+                            CircleAvatar(
+                              child: Icon(
+                                Ionicons.person,
+                                color: ColorMP.ColorPrimary,
+                              ),
+                            ),
+                            SizedBox(
+                              width: 10,
+                            ),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text(
+                                  "Xin chào!",
+                                  style: TextStyle(color: Colors.white),
+                                ),
+                                Text(
+                                  userProfile != null ? userProfile!.name! : "",
+                                  style: TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.w600),
+                                ),
+                              ],
+                            )
+                          ],
+                        )),
+                  ),
                   actions: <Widget>[
                     IconButton(
                       icon: const Icon(
@@ -182,13 +222,13 @@ class _HomeViewState extends State<HomeView> with TickerProviderStateMixin {
                       onPressed: () async {
                         final values = await dialogDate(context);
                         if (values != null) {
+                          fromDate = DateFormat('dd/MM/yyyy').format(values[0]);
+                          toDate = DateFormat('dd/MM/yyyy').format(values[1]);
                           NotifySearchRequest req = NotifySearchRequest();
-                          req.fromDate =
-                              DateFormat('dd/MM/yyyy').format(values[0]);
-                          req.toDate =
-                              DateFormat('dd/MM/yyyy').format(values[1]);
+                          req.fromDate = fromDate;
+                          req.toDate = toDate;
 
-                          getNotify(req);
+                          getNotifyGeneral(req);
                         }
                       },
                     )
@@ -265,7 +305,7 @@ class _HomeViewState extends State<HomeView> with TickerProviderStateMixin {
                         Container(
                             alignment: Alignment.center,
                             child: Text(
-                              "$formattedDate - $formattedDate",
+                              "$fromDate - $toDate",
                               style: TextStyle(fontWeight: FontWeight.w600),
                             ))
                       ],
@@ -298,26 +338,32 @@ class _HomeViewState extends State<HomeView> with TickerProviderStateMixin {
                     )
                   ],
                 ))),
+
         Positioned(
             // To take AppBar Size only
             top: 210.0,
             left: 8.0,
             right: 8.0,
             bottom: 8,
-            child: Text(
-              "Lịch sử giao dịch",
-              style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
-            )),
-        Positioned(
-            // To take AppBar Size only
-            top: 240.0,
-            left: 8.0,
-            right: 8.0,
-            bottom: 8,
             child: SingleChildScrollView(
                 child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                Text(
+                  "Thống kê giao dịch",
+                  style: TextStyle(fontWeight: FontWeight.w600),
+                ),
+                SizedBox(
+                  height: 4,
+                ),
                 buildChart(),
+                Text(
+                  "Chi tiết giao dịch ngày $startDomain",
+                  style: TextStyle(fontWeight: FontWeight.w600),
+                ),
+                SizedBox(
+                  height: 4,
+                ),
                 buildNotifies(),
               ],
             )))
@@ -327,55 +373,48 @@ class _HomeViewState extends State<HomeView> with TickerProviderStateMixin {
 
   Widget buildChart() {
     if (generals != null && generals!.isNotEmpty) {
-      Container(
+      return Container(
+          decoration: decorationMP(),
+          width: MediaQuery.of(context).size.width - 18,
+          margin: EdgeInsets.only(bottom: 10),
           padding: EdgeInsets.all(10),
-          width: MediaQuery.of(context).size.width,
-          height: MediaQuery.of(context).size.width - 50,
-          child: SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: AspectRatio(
-              aspectRatio: 16 / 9,
-              child: DChartBarT(
-                layoutMargin: LayoutMargin(40, 10, 10, 10),
-                configRenderBar: ConfigRenderBar(
-                  radius: 4,
+          child: AspectRatio(
+            aspectRatio: 16 / 9,
+            child: DChartBarO(
+              allowSliding: true,
+              animate: true,
+              configRenderBar: ConfigRenderBar(maxBarWidthPx: 24),
+              fillColor: (group, ordinalData, index) {
+                if (ordinalData.other == startDomain) {
+                  return ColorMP.ColorPrimary;
+                }
+                return ColorMP.ColorAccent;
+              },
+              onUpdatedListener: (data) {
+                startDomain = data.other.toString();
+                NotifySearchRequest req = NotifySearchRequest();
+                req.fromDate = startDomain;
+                req.toDate = startDomain;
+                getNotify(req);
+              },
+              domainAxis: DomainAxis(
+                showLine: true,
+                ordinalViewport: OrdinalViewport(startDomain, 7),
+                tickLength: 0,
+                gapAxisToLabel: 10,
+                labelStyle: const LabelStyle(
+                  fontSize: 12,
+                  color: Colors.black54,
                 ),
-                onUpdatedListener: (data) {
-                  String sss = "";
+                tickLabelFormatterT: (domain) {
+                  return DateFormat("dd/MM").format(domain);
                 },
-                domainAxis: DomainAxis(
-                  showLine: true,
-                  lineStyle: LineStyle(color: Colors.grey.shade200),
-                  tickLength: 0,
-                  gapAxisToLabel: 12,
-                  labelStyle: const LabelStyle(
-                    fontSize: 10,
-                    color: Colors.black54,
-                  ),
-                  tickLabelFormatterT: (domain) {
-                    return DateFormat.MMM().format(domain);
-                  },
-                ),
-                measureAxis: const MeasureAxis(
-                  gapAxisToLabel: 8,
-                  numericTickProvider: NumericTickProvider(
-                    desiredMinTickCount: 5,
-                    desiredMaxTickCount: 10,
-                  ),
-                  tickLength: 0,
-                  labelStyle: LabelStyle(
-                    fontSize: 10,
-                    color: Colors.black54,
-                  ),
-                ),
-                groupList: [
-                  TimeGroup(
-                    id: '1',
-                    data: dataChart,
-                    color: Colors.deepPurple.shade100,
-                  ),
-                ],
               ),
+              measureAxis: MeasureAxis(noRenderSpec: true),
+              groupList: [
+                OrdinalGroup(
+                    id: '1', data: dataChart, color: ColorMP.ColorAccent),
+              ],
             ),
           ));
     }
