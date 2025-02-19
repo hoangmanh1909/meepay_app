@@ -26,7 +26,6 @@ import 'package:meepay_app/models/response/response_object.dart';
 import 'package:meepay_app/models/response/user_profile.dart';
 import 'package:meepay_app/utils/app_color.dart';
 import 'package:meepay_app/utils/bottom_sheet.dart';
-import 'package:meepay_app/utils/color_extension.dart';
 import 'package:meepay_app/utils/color_mp.dart';
 import 'package:meepay_app/utils/common.dart';
 import 'package:meepay_app/utils/dialog_date.dart';
@@ -37,20 +36,8 @@ import 'package:meepay_app/view/account/user_info_view.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class HomeView extends StatefulWidget {
-  HomeView({Key? key}) : super(key: key);
-  List<Color> get availableColors => const <Color>[
-        AppColors.contentColorPurple,
-        AppColors.contentColorYellow,
-        AppColors.contentColorBlue,
-        AppColors.contentColorOrange,
-        AppColors.contentColorPink,
-        AppColors.contentColorRed,
-      ];
+  const HomeView({Key? key}) : super(key: key);
 
-  final Color barBackgroundColor =
-      AppColors.contentColorWhite.darken().withValues(alpha: 0.3);
-  final Color barColor = ColorMP.ColorAccent;
-  final Color touchedBarColor = AppColors.contentColorGreen;
   @override
   State<HomeView> createState() => _HomeViewState();
 }
@@ -277,7 +264,6 @@ class _HomeViewState extends State<HomeView> with TickerProviderStateMixin {
                     borderRadius: BorderRadius.all(Radius.circular(8)),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.white.withValues(alpha: 0.1),
                         spreadRadius: 1,
                         blurRadius: 1,
                         offset: Offset(1, 1),
