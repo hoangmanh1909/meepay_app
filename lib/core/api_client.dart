@@ -49,4 +49,21 @@ class ApiClient {
       return responseObject;
     }
   }
+
+  Future<ResponseObject> register(RequestObject baseRequest) async {
+    try {
+      Response response = await _dio.post("${urlGateway}Gateway/Register",
+          data: baseRequest,
+          options: Options(headers: {
+            HttpHeaders.contentTypeHeader: "application/json",
+          }));
+
+      return ResponseObject.fromJson(response.data);
+      // ignore: deprecated_member_use
+    } on DioError catch (e) {
+      ResponseObject responseObject =
+          ResponseObject(code: "98", message: "Không thể kết nối đến máy chủ");
+      return responseObject;
+    }
+  }
 }

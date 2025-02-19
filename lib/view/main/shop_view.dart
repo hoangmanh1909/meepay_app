@@ -14,7 +14,6 @@ import 'package:meepay_app/utils/common.dart';
 import 'package:meepay_app/utils/dialog_process.dart';
 import 'package:meepay_app/utils/scaffold_messger.dart';
 import 'package:meepay_app/view/account/add_link_view.dart';
-import 'package:meepay_app/view/account/user_info_view.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ShopView extends StatefulWidget {
@@ -62,35 +61,30 @@ class _ShopViewState extends State<ShopView> {
         accounts = List<AccountSearchResponse>.from((jsonDecode(res.data!)
             .map((model) => AccountSearchResponse.fromJson(model))));
       });
-      AccountSearchResponse item = accounts[0];
-      if (item.device!.isLink == "N") {
-        isNotify = false;
-      }
-    } else {
-      showMessage(res.message!, "99", 4);
     }
+    // else {
+    //   showMessage(res.message!, "99", 4);
+    // }
     if (mounted) {
       Navigator.pop(context);
     }
   }
 
-  changeLink(int deviceID, String isLink, bool value) async {
+  Future<String> changeLink(int deviceID, String isLink, bool value) async {
     ChangeLinkRequest req = ChangeLinkRequest();
     req.deviceID = deviceID;
     req.isLink = isLink;
-
+    String result = "";
     if (mounted) showProcess(context);
     ResponseObject res = await con.changeLink(req);
-    if (res.code == "00") {
-      setState(() {
-        isNotify = value;
-      });
-    } else {
+    if (res.code != "00") {
       showMessage(res.message!, "99", 4);
     }
     if (mounted) {
       Navigator.pop(context);
     }
+    result = res.code!;
+    return result;
   }
 
   @override
@@ -113,7 +107,6 @@ class _ShopViewState extends State<ShopView> {
         ));
   }
 
-  bool isNotify = true;
   Widget buildAccount() {
     if (accounts.isNotEmpty) {
       return ListView.builder(
@@ -223,12 +216,18 @@ class _ShopViewState extends State<ShopView> {
                           return const Icon(Icons.close);
                         },
                       ),
-                      value: isNotify,
+                      value: item.device!.isLink! == "Y" ? true : false,
                       activeColor: ColorMP.ColorAccent,
                       onChanged: (bool value) {
                         String isLink = "Y";
                         if (!value) isLink = "N";
-                        changeLink(item.device!.iD!, isLink, value);
+                        changeLink(item.device!.iD!, isLink, value)
+                            .then((onValue) {
+                          if (onValue == "00") {
+                            item.device!.isLink = isLink;
+                            setState(() {});
+                          }
+                        });
                       },
                     ),
                   ],
@@ -246,10 +245,8 @@ class _ShopViewState extends State<ShopView> {
   Widget buildLink() {
     return InkWell(
       onTap: () {
-        Future.delayed(Duration.zero, () {
-          Navigator.push(context,
-              MaterialPageRoute(builder: (context) => const AddLinkView()));
-        });
+        Navigator.push(context,
+            MaterialPageRoute(builder: (context) => const AddLinkView()));
       },
       child: Container(
           alignment: Alignment.center,

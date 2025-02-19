@@ -5,6 +5,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:meepay_app/controller/user_controller.dart';
 import 'package:meepay_app/models/request/login_request.dart';
+import 'package:meepay_app/models/request/register_request.dart';
 import 'package:meepay_app/models/response/response_object.dart';
 import 'package:meepay_app/models/response/token_response.dart';
 import 'package:meepay_app/models/response/user_profile.dart';
@@ -13,6 +14,7 @@ import 'package:meepay_app/utils/common.dart';
 import 'package:meepay_app/utils/dialog_process.dart';
 import 'package:meepay_app/utils/dimen.dart';
 import 'package:meepay_app/utils/scaffold_messger.dart';
+import 'package:meepay_app/view/account/rule_view.dart';
 import 'package:meepay_app/view/main/main_view.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -27,10 +29,12 @@ class _RegisterViewState extends State<RegisterView> {
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
   final UserController con = UserController();
   final TextEditingController name = TextEditingController();
+  final TextEditingController email = TextEditingController();
   final TextEditingController mobileNumber = TextEditingController();
   final TextEditingController password = TextEditingController();
   final TextEditingController passwordAgain = TextEditingController();
 
+  bool isChecked = false;
   bool _showPassword = true;
   bool _showPassword1 = true;
 
@@ -53,13 +57,24 @@ class _RegisterViewState extends State<RegisterView> {
     if (!isValid) {
       return;
     }
-    LoginRequest loginRequest = LoginRequest();
-    loginRequest.password = password.text;
-    loginRequest.phoneNumber = mobileNumber.text;
+    if (!isChecked) {
+      showMessage("Bạn chưa đồng ý điều kiện và điều khoản", "99", 3);
+      return;
+    }
+    if (password.text != passwordAgain.text) {
+      showMessage("Mật khẩu không khớp", "99", 3);
+      return;
+    }
+
+    RegisterRequest registerRequest = RegisterRequest();
+    registerRequest.password = password.text;
+    registerRequest.phoneNumber = mobileNumber.text;
+    registerRequest.email = email.text;
+    registerRequest.name = name.text;
     if (mounted) showProcess(context);
 
-    ResponseObject res = await con.login(loginRequest);
-    if (context.mounted) Navigator.pop(context);
+    ResponseObject res = await con.register(registerRequest);
+    if (mounted) Navigator.pop(context);
     if (res.code == "00") {
       UserProfile userProfile = UserProfile.fromJson(jsonDecode(res.data!));
 
@@ -83,7 +98,6 @@ class _RegisterViewState extends State<RegisterView> {
   Widget build(BuildContext context) {
     var size = MediaQuery.of(context).size;
     return Scaffold(
-      resizeToAvoidBottomInset: false,
       backgroundColor: ColorMP.ColorBackground,
       appBar: AppBar(
         backgroundColor: ColorMP.ColorPrimary,
@@ -112,8 +126,6 @@ class _RegisterViewState extends State<RegisterView> {
                 TextFormField(
                   autovalidateMode: AutovalidateMode.onUserInteraction,
                   controller: name,
-                  maxLength: 10,
-                  keyboardType: TextInputType.number,
                   decoration: InputDecoration(
                     hintText: "Tên Doanh nghiệp/Hộ KD *",
                     labelText: "Tên Doanh nghiệp/Hộ KD *",
@@ -148,6 +160,10 @@ class _RegisterViewState extends State<RegisterView> {
                   validator: (text) {
                     if (text == null || text.isEmpty) {
                       return "Vui lòng nhập số điện thoại";
+                    } else {
+                      if (text.length != 10) {
+                        return "Số điện thoại không hợp lệ";
+                      }
                     }
                     return null;
                   },
@@ -157,8 +173,6 @@ class _RegisterViewState extends State<RegisterView> {
                   autovalidateMode: AutovalidateMode.onUserInteraction,
                   obscureText: _showPassword,
                   controller: password,
-                  maxLength: 6,
-                  keyboardType: TextInputType.number,
                   decoration: InputDecoration(
                     suffixIcon: InkWell(
                       onTap: () {
@@ -169,8 +183,8 @@ class _RegisterViewState extends State<RegisterView> {
                         color: ColorMP.ColorAccent,
                       ),
                     ),
-                    labelText: "Mật khẩu",
-                    hintText: "Mật khẩu",
+                    labelText: "Mật khẩu *",
+                    hintText: "Mật khẩu *",
                     counterText: "",
                     isDense: true,
                     border: OutlineInputBorder(
@@ -189,8 +203,6 @@ class _RegisterViewState extends State<RegisterView> {
                   autovalidateMode: AutovalidateMode.onUserInteraction,
                   obscureText: _showPassword1,
                   controller: passwordAgain,
-                  maxLength: 6,
-                  keyboardType: TextInputType.number,
                   decoration: InputDecoration(
                     suffixIcon: InkWell(
                       onTap: () {
@@ -203,8 +215,8 @@ class _RegisterViewState extends State<RegisterView> {
                         color: ColorMP.ColorAccent,
                       ),
                     ),
-                    labelText: "Nhập lại mật khẩu",
-                    hintText: "Nhập lại mật khẩu",
+                    labelText: "Nhập lại mật khẩu *",
+                    hintText: "Nhập lại mật khẩu *",
                     counterText: "",
                     isDense: true,
                     border: OutlineInputBorder(
@@ -217,6 +229,62 @@ class _RegisterViewState extends State<RegisterView> {
                     }
                     return null;
                   },
+                ),
+                SizedBox(height: size.height * 0.03),
+                TextFormField(
+                    controller: email,
+                    decoration: InputDecoration(
+                      hintText: "Email",
+                      labelText: "Email",
+                      counterText: "",
+                      isDense: true,
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    )),
+                SizedBox(height: size.height * 0.03),
+                Row(
+                  children: [
+                    SizedBox(
+                      width: 24,
+                      height: 24,
+                      child: Checkbox(
+                        value: isChecked,
+                        onChanged: (bool? value) {
+                          setState(() {
+                            isChecked = value!;
+                          });
+                        },
+                      ),
+                    ),
+                    SizedBox(
+                      width: 10,
+                    ),
+                    Expanded(
+                        child: Row(
+                      children: [
+                        Flexible(
+                            child: Text(
+                          "Đồng ý với ",
+                          textAlign: TextAlign.left,
+                          softWrap: true,
+                        )),
+                        InkWell(
+                          onTap: () {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => RuleView()));
+                          },
+                          child: Text(
+                            "Điều kiện và điều khoản",
+                            softWrap: true,
+                            style: TextStyle(color: Colors.blue),
+                          ),
+                        ),
+                      ],
+                    )),
+                  ],
                 ),
                 SizedBox(height: size.height * 0.03),
                 Row(

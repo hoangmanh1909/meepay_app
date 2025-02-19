@@ -7,7 +7,6 @@ import 'package:ionicons/ionicons.dart';
 import 'package:meepay_app/controller/account_controller.dart';
 import 'package:meepay_app/controller/dictionary_controller.dart';
 import 'package:meepay_app/models/request/account_add_request.dart';
-import 'package:meepay_app/models/request/dialog_notify_sucess.dart';
 import 'package:meepay_app/models/response/dictionary_response.dart';
 import 'package:meepay_app/models/response/response_object.dart';
 import 'package:meepay_app/models/response/user_profile.dart';
@@ -18,6 +17,7 @@ import 'package:meepay_app/utils/dialog_process.dart';
 import 'package:meepay_app/utils/dialog_widget_bank.dart';
 import 'package:meepay_app/utils/scaffold_messger.dart';
 import 'package:meepay_app/view/account/otp_view.dart';
+import 'package:meepay_app/view/account/rule_view.dart';
 import 'package:meepay_app/view/main/scanqr_view.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -44,6 +44,7 @@ class _AddLinkViewState extends State<AddLinkView> {
   UserProfile? userProfile;
   DictionaryResponse? selectedBank;
   List<DictionaryResponse>? bankModels;
+  bool isChecked = false;
   @override
   void initState() {
     super.initState();
@@ -70,9 +71,11 @@ class _AddLinkViewState extends State<AddLinkView> {
 
     ResponseObject res = await con.getBank();
     if (res.code == "00") {
+      List<DictionaryResponse> b = List<DictionaryResponse>.from(
+          (jsonDecode(res.data!)
+              .map((model) => DictionaryResponse.fromJson(model))));
       setState(() {
-        bankModels = List<DictionaryResponse>.from((jsonDecode(res.data!)
-            .map((model) => DictionaryResponse.fromJson(model))));
+        bankModels = b.where((test) => test.iD == 1).toList();
       });
     }
 
@@ -90,7 +93,10 @@ class _AddLinkViewState extends State<AddLinkView> {
     if (!isValid) {
       return;
     }
-
+    if (!isChecked) {
+      showMessage("Bạn chưa đồng ý điều kiện và điều khoản", "99", 3);
+      return;
+    }
     AccountAddNewRequest req = AccountAddNewRequest();
     req.accountNumber = _accNumber.text;
     req.bankID = selectedBank!.iD;
@@ -103,14 +109,17 @@ class _AddLinkViewState extends State<AddLinkView> {
     if (mounted) showProcess(context);
 
     ResponseObject res = await conAcc.addLink(req);
-    if (context.mounted) Navigator.pop(context);
+    if (mounted) Navigator.pop(context);
     if (res.code == "00") {
       if (mounted) {
         final v = jsonDecode(res.data!);
         Navigator.push(
           context,
           MaterialPageRoute(
-              builder: (BuildContext context) => OTPView(code: v["Code"])),
+              builder: (BuildContext context) => OTPView(
+                    code: v["Code"],
+                    bankID: selectedBank!.iD!,
+                  )),
         );
         // dialogBuilderSucess(
         // context, "Thông báo", "Thêm mới liên kết tài khoản thành công");
@@ -164,6 +173,52 @@ class _AddLinkViewState extends State<AddLinkView> {
                         boxShadow: [boxShadow()],
                       ),
                       child: buildDevice(),
+                    ),
+                    Padding(
+                      padding: EdgeInsets.all(8),
+                      child: Row(
+                        children: [
+                          SizedBox(
+                            width: 24,
+                            height: 24,
+                            child: Checkbox(
+                              value: isChecked,
+                              onChanged: (bool? value) {
+                                setState(() {
+                                  isChecked = value!;
+                                });
+                              },
+                            ),
+                          ),
+                          SizedBox(
+                            width: 10,
+                          ),
+                          Expanded(
+                              child: Row(
+                            children: [
+                              Flexible(
+                                  child: Text(
+                                "Đồng ý với ",
+                                textAlign: TextAlign.left,
+                                softWrap: true,
+                              )),
+                              InkWell(
+                                onTap: () {
+                                  Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) => RuleView()));
+                                },
+                                child: Text(
+                                  "Điều kiện và điều khoản",
+                                  softWrap: true,
+                                  style: TextStyle(color: Colors.blue),
+                                ),
+                              ),
+                            ],
+                          )),
+                        ],
+                      ),
                     ),
                     InkWell(
                         onTap: addLink,
@@ -257,6 +312,7 @@ class _AddLinkViewState extends State<AddLinkView> {
         TextFormField(
           autovalidateMode: AutovalidateMode.onUserInteraction,
           controller: _accMobile,
+          keyboardType: TextInputType.number,
           decoration: InputDecoration(
             border: OutlineInputBorder(),
             hintText: "Số điện thoại",

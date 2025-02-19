@@ -12,9 +12,11 @@ import 'package:meepay_app/utils/dialog_process.dart';
 import 'package:meepay_app/utils/scaffold_messger.dart';
 
 class OTPView extends StatefulWidget {
-  const OTPView({Key? key, this.code}) : super(key: key);
+  const OTPView({Key? key, required this.code, required this.bankID})
+      : super(key: key);
 
-  final String? code;
+  final String code;
+  final int bankID;
   @override
   State<OTPView> createState() => _OTPViewState();
 }
@@ -28,9 +30,10 @@ class _OTPViewState extends State<OTPView> {
         VerifyOTPRequest req = VerifyOTPRequest();
         req.code = widget.code;
         req.oTP = otp;
+        req.bankID = widget.bankID;
         if (mounted) showProcess(context);
         ResponseObject res = await conAcc.verifyOtp(req);
-        if (context.mounted) Navigator.pop(context);
+        if (mounted) Navigator.pop(context);
         if (res.code == "00") {
           if (mounted) {
             dialogBuilderSucess(

@@ -1,4 +1,4 @@
-package com.example.meepay_app
+package com.mee.meepay_app
 
 import io.flutter.embedding.android.FlutterActivity
 

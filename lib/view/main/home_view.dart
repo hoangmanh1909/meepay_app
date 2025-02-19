@@ -32,6 +32,7 @@ import 'package:meepay_app/utils/common.dart';
 import 'package:meepay_app/utils/dialog_date.dart';
 import 'package:meepay_app/utils/dialog_process.dart';
 import 'package:meepay_app/utils/scaffold_messger.dart';
+import 'package:meepay_app/view/account/add_link_view.dart';
 import 'package:meepay_app/view/account/user_info_view.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -117,15 +118,9 @@ class _HomeViewState extends State<HomeView> with TickerProviderStateMixin {
 
       req.fromDate = fromDate;
       req.toDate = toDate;
-      // req.accountID = item.iD;
+      req.accountID = account!.iD;
       await getNotifyGeneral(req);
 
-      if (startDomain.isNotEmpty) {
-        req = NotifySearchRequest();
-        req.fromDate = startDomain;
-        req.toDate = startDomain;
-        await getNotify(req);
-      }
       if (mounted) {
         Navigator.pop(context);
       }
@@ -133,7 +128,7 @@ class _HomeViewState extends State<HomeView> with TickerProviderStateMixin {
       if (mounted) {
         Navigator.pop(context);
       }
-      showMessage(res.message!, "99", 4);
+      // showMessage(res.message!, "99", 4);
     }
   }
 
@@ -151,6 +146,12 @@ class _HomeViewState extends State<HomeView> with TickerProviderStateMixin {
             measure: item.amount!,
             other: item.transDate));
       }
+
+      req = NotifySearchRequest();
+      req.fromDate = startDomain;
+      req.toDate = startDomain;
+      req.accountID = account!.iD;
+      await getNotify(req);
 
       setState(() {});
     }
@@ -233,11 +234,12 @@ class _HomeViewState extends State<HomeView> with TickerProviderStateMixin {
                         color: Colors.white,
                       ),
                       onPressed: () async {
-                        final values = await dialogDate(context);
-                        if (values != null) {
+                        List<DateTime> values = await dialogDate(context);
+                        if (values.length > 1) {
                           fromDate = DateFormat('dd/MM/yyyy').format(values[0]);
                           toDate = DateFormat('dd/MM/yyyy').format(values[1]);
                           NotifySearchRequest req = NotifySearchRequest();
+                          req.accountID = account!.iD!;
                           req.fromDate = fromDate;
                           req.toDate = toDate;
 
@@ -246,37 +248,7 @@ class _HomeViewState extends State<HomeView> with TickerProviderStateMixin {
                       },
                     )
                   ]),
-              InkWell(
-                  onTap: () {
-                    bottomSheet(context, accounts, (v) {
-                      if (mounted) {
-                        Navigator.pop(context);
-                        account = v;
-                        NotifySearchRequest req = NotifySearchRequest();
-                        getNotify(req);
-                      }
-                    });
-                  },
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Column(
-                        children: [
-                          textAccount(account != null ? account!.name! : ""),
-                          textAccount(
-                              account != null ? account!.accoumtNumber! : ""),
-                        ],
-                      ),
-                      Padding(
-                        padding: EdgeInsets.only(left: 20),
-                        child: Icon(
-                          Ionicons.chevron_down,
-                          size: 20,
-                          color: Colors.white,
-                        ),
-                      )
-                    ],
-                  ))
+              buildAccountNumber()
             ],
           ),
           height: 150,
@@ -359,80 +331,157 @@ class _HomeViewState extends State<HomeView> with TickerProviderStateMixin {
             left: 8.0,
             right: 8.0,
             bottom: 8,
-            child: SingleChildScrollView(
-                child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  "Thống kê giao dịch",
-                  style: TextStyle(fontWeight: FontWeight.w600),
-                ),
-                SizedBox(
-                  height: 4,
-                ),
-                buildChart(),
-                Text(
-                  "Chi tiết giao dịch ngày $startDomain",
-                  style: TextStyle(fontWeight: FontWeight.w600),
-                ),
-                SizedBox(
-                  height: 4,
-                ),
-                buildNotifies(),
-              ],
-            )))
+            child: buildBody())
       ],
     );
   }
 
-  Widget buildChart() {
-    if (generals != null && generals!.isNotEmpty) {
-      return Container(
-          decoration: decorationMP(),
-          width: MediaQuery.of(context).size.width - 18,
-          margin: EdgeInsets.only(bottom: 10),
-          padding: EdgeInsets.all(10),
-          child: AspectRatio(
-            aspectRatio: 16 / 9,
-            child: DChartBarO(
-              allowSliding: true,
-              animate: true,
-              configRenderBar: ConfigRenderBar(maxBarWidthPx: 24),
-              fillColor: (group, ordinalData, index) {
-                if (ordinalData.other == startDomain) {
-                  return ColorMP.ColorPrimary;
-                }
-                return ColorMP.ColorAccent;
-              },
-              onUpdatedListener: (data) {
-                startDomain = data.other.toString();
+  Widget buildAccountNumber() {
+    if (accounts.isNotEmpty) {
+      return InkWell(
+          onTap: () {
+            bottomSheet(context, accounts, (v) {
+              if (mounted) {
+                Navigator.pop(context);
+                setState(() {
+                  account = v;
+                });
                 NotifySearchRequest req = NotifySearchRequest();
-                req.fromDate = startDomain;
-                req.toDate = startDomain;
-                getNotify(req);
-              },
-              domainAxis: DomainAxis(
-                showLine: true,
-                ordinalViewport: OrdinalViewport(startDomain, 7),
-                tickLength: 0,
-                gapAxisToLabel: 10,
-                labelStyle: const LabelStyle(
-                  fontSize: 12,
-                  color: Colors.black54,
-                ),
-                tickLabelFormatterT: (domain) {
-                  return DateFormat("dd/MM").format(domain);
-                },
+                req.accountID = account!.iD!;
+                req.fromDate = fromDate;
+                req.toDate = toDate;
+                getNotifyGeneral(req);
+              }
+            });
+          },
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Column(
+                children: [
+                  textAccount(account != null ? account!.name! : ""),
+                  textAccount(account != null ? account!.accoumtNumber! : ""),
+                ],
               ),
-              measureAxis: MeasureAxis(noRenderSpec: true),
-              groupList: [
-                OrdinalGroup(
-                    id: '1', data: dataChart, color: ColorMP.ColorAccent),
-              ],
-            ),
+              Padding(
+                padding: EdgeInsets.only(left: 20),
+                child: Icon(
+                  Ionicons.chevron_down,
+                  size: 20,
+                  color: Colors.white,
+                ),
+              )
+            ],
           ));
     }
-    return SizedBox.shrink();
+    return InkWell(
+      onTap: () {
+        Navigator.push(context,
+            MaterialPageRoute(builder: (context) => const AddLinkView()));
+      },
+      child: Container(
+          alignment: Alignment.center,
+          height: 30,
+          width: 150,
+          margin: EdgeInsets.all(2),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(4),
+          ),
+          child: Text("Liên kết ngân hàng",
+              style: TextStyle(
+                  color: ColorMP.ColorAccent, fontWeight: FontWeight.w600))),
+    );
+  }
+
+  Widget buildBody() {
+    if (generals != null && generals!.isNotEmpty) {
+      return SingleChildScrollView(
+          child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            "Thống kê giao dịch",
+            style: TextStyle(fontWeight: FontWeight.w600),
+          ),
+          SizedBox(
+            height: 4,
+          ),
+          buildChart(),
+          Text(
+            "Chi tiết giao dịch ngày $startDomain",
+            style: TextStyle(fontWeight: FontWeight.w600),
+          ),
+          SizedBox(
+            height: 4,
+          ),
+          buildNotifies(),
+        ],
+      ));
+    }
+    return Center(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            Ionicons.tablet_landscape_outline,
+            size: 50,
+          ),
+          SizedBox(
+            height: 10,
+          ),
+          Text("Danh sách trống")
+        ],
+      ),
+    );
+  }
+
+  Widget buildChart() {
+    return Container(
+        decoration: decorationMP(),
+        width: MediaQuery.of(context).size.width - 18,
+        margin: EdgeInsets.only(bottom: 10),
+        padding: EdgeInsets.all(10),
+        child: AspectRatio(
+          aspectRatio: 16 / 9,
+          child: DChartBarO(
+            allowSliding: true,
+            animate: true,
+            configRenderBar: ConfigRenderBar(maxBarWidthPx: 24),
+            fillColor: (group, ordinalData, index) {
+              if (ordinalData.other == startDomain) {
+                return ColorMP.ColorPrimary;
+              }
+              return ColorMP.ColorAccent;
+            },
+            onUpdatedListener: (data) {
+              startDomain = data.other.toString();
+              NotifySearchRequest req = NotifySearchRequest();
+              req.fromDate = startDomain;
+              req.toDate = startDomain;
+              getNotify(req);
+            },
+            domainAxis: DomainAxis(
+              showLine: true,
+              ordinalViewport: OrdinalViewport(startDomain, 7),
+              tickLength: 0,
+              gapAxisToLabel: 10,
+              labelStyle: const LabelStyle(
+                fontSize: 12,
+                color: Colors.black54,
+              ),
+              tickLabelFormatterT: (domain) {
+                return DateFormat("dd/MM").format(domain);
+              },
+            ),
+            measureAxis: MeasureAxis(noRenderSpec: true),
+            groupList: [
+              OrdinalGroup(
+                  id: '1', data: dataChart, color: ColorMP.ColorAccent),
+            ],
+          ),
+        ));
   }
 
   Widget buildNotifies() {

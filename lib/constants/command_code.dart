@@ -17,4 +17,5 @@ class CommandCode {
   static String DEVICE_CHANGE_LINK = "DEVICE_CHANGE_LINK";
   static String ACCOUNT_VERIFY = "ACCOUNT_VERIFY";
   static String NOTIFY_GENERAL = "NOTIFY_GENERAL";
+  static String USER_REGISTER = "USER_REGISTER";
 }

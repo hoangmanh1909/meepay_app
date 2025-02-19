@@ -27,7 +27,7 @@ class BankDialog extends StatelessWidget {
           ),
         ),
         body: Container(
-            margin: const EdgeInsets.all(8.0),
+            margin: const EdgeInsets.symmetric(vertical: 10),
             child: ListView.builder(
                 scrollDirection: Axis.vertical,
                 itemCount: banks.length,
@@ -37,6 +37,7 @@ class BankDialog extends StatelessWidget {
                       Navigator.of(context).pop(banks[index]);
                     },
                     child: Container(
+                        margin: EdgeInsetsDirectional.only(bottom: 10),
                         decoration: BoxDecoration(
                             color: Colors.white, boxShadow: [boxShadow()]),
                         child: Row(

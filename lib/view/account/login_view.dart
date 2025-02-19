@@ -4,6 +4,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:meepay_app/controller/user_controller.dart';
+import 'package:meepay_app/models/request/dialog_notify_sucess.dart';
 import 'package:meepay_app/models/request/login_request.dart';
 import 'package:meepay_app/models/response/response_object.dart';
 import 'package:meepay_app/models/response/token_response.dart';
@@ -39,8 +40,8 @@ class _LoginViewState extends State<LoginView> {
   }
 
   init() async {
-    mobileNumber.text = "0936062990";
-    password.text = "12345678aA@";
+    // mobileNumber.text = "0936062990";
+    // password.text = "1";
     prefs = await SharedPreferences.getInstance();
   }
 
@@ -55,7 +56,7 @@ class _LoginViewState extends State<LoginView> {
     if (mounted) showProcess(context);
 
     ResponseObject res = await con.login(loginRequest);
-    if (context.mounted) Navigator.pop(context);
+    if (mounted) Navigator.pop(context);
     if (res.code == "00") {
       UserProfile userProfile = UserProfile.fromJson(jsonDecode(res.data!));
 
@@ -137,8 +138,6 @@ class _LoginViewState extends State<LoginView> {
                                 AutovalidateMode.onUserInteraction,
                             obscureText: _showPassword,
                             controller: password,
-                            maxLength: 6,
-                            keyboardType: TextInputType.number,
                             decoration: InputDecoration(
                               suffixIcon: InkWell(
                                 onTap: () {
@@ -198,13 +197,14 @@ class _LoginViewState extends State<LoginView> {
                           Center(
                             child: InkWell(
                               onTap: () {
-                                Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) => RegisterView()));
+                                showMessage(
+                                    "Vui lòng liên hệ số điện thoại 0936062990 để được hướng dẫn lấy lại mật khẩu!",
+                                    "00",
+                                    10);
                               },
                               child: Text(
                                 "Quên mật khẩu?",
+                                style: TextStyle(color: Colors.red),
                               ),
                             ),
                           ),
