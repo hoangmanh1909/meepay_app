@@ -30,7 +30,7 @@ class _LoginViewState extends State<LoginView> {
   final TextEditingController mobileNumber = TextEditingController();
   final TextEditingController password = TextEditingController();
   bool _showPassword = true;
-
+  UserProfile? userProfile;
   SharedPreferences? prefs;
 
   @override
@@ -39,10 +39,15 @@ class _LoginViewState extends State<LoginView> {
     init();
   }
 
-  init() async {
-    // mobileNumber.text = "0936062990";
-    // password.text = "1";
+  void init() async {
     prefs = await SharedPreferences.getInstance();
+    String? userMap = prefs?.getString('user');
+    if (userMap != null) {
+      setState(() {
+        userProfile = UserProfile.fromJson(jsonDecode(userMap));
+        mobileNumber.text = userProfile!.phoneNumber!;
+      });
+    }
   }
 
   login() async {

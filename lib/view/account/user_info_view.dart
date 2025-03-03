@@ -116,6 +116,23 @@ class _UserViewState extends State<UserView> {
                           color: Colors.red, fontWeight: FontWeight.w600),
                     )),
               ),
+              SizedBox(
+                height: 10,
+              ),
+              InkWell(
+                onTap: () {},
+                child: Container(
+                    height: 40,
+                    width: size.width - 16,
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(8),
+                        boxShadow: [boxShadow()]),
+                    child: Text("Xóa tài khoản",
+                        style: TextStyle(
+                            color: Colors.red, fontWeight: FontWeight.w600))),
+              ),
             ],
           ),
         ));

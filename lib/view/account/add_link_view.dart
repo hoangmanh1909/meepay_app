@@ -39,6 +39,7 @@ class _AddLinkViewState extends State<AddLinkView> {
   final TextEditingController _accPIDNumber = TextEditingController();
   final TextEditingController _email = TextEditingController();
   final TextEditingController _serial = TextEditingController();
+  final TextEditingController _accVirtual = TextEditingController();
 
   SharedPreferences? prefs;
   UserProfile? userProfile;
@@ -470,6 +471,28 @@ class _AddLinkViewState extends State<AddLinkView> {
                 ),
               )
             ],
+          ),
+          SizedBox(
+            height: 10,
+          ),
+          textLabelRequired("Số tài khoản ảo"),
+          SizedBox(
+            height: 4,
+          ),
+          TextFormField(
+            autovalidateMode: AutovalidateMode.onUserInteraction,
+            controller: _accVirtual,
+            decoration: InputDecoration(
+                border: OutlineInputBorder(),
+                hintText: "Số tài khoản ảo",
+                contentPadding: EdgeInsets.all(10),
+                isDense: true),
+            validator: (text) {
+              if (text == null || text.isEmpty) {
+                return "Vui lòng nhập Số tài khoản ảo";
+              }
+              return null;
+            },
           ),
         ]);
   }
