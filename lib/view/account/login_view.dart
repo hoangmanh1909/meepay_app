@@ -10,6 +10,7 @@ import 'package:meepay_app/models/response/response_object.dart';
 import 'package:meepay_app/models/response/token_response.dart';
 import 'package:meepay_app/models/response/user_profile.dart';
 import 'package:meepay_app/utils/color_mp.dart';
+import 'package:meepay_app/utils/dialog_confirm.dart';
 import 'package:meepay_app/utils/dialog_process.dart';
 import 'package:meepay_app/utils/scaffold_messger.dart';
 import 'package:meepay_app/view/account/otp_view.dart';
@@ -51,6 +52,9 @@ class _LoginViewState extends State<LoginView> {
   }
 
   login() async {
+    dialogConfirm(context, "Xác nhận", "Bạn có chắc chắn muốn xóa tài khoản");
+    return;
+
     final isValid = formKey.currentState!.validate();
     if (!isValid) {
       return;
