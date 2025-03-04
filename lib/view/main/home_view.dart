@@ -121,6 +121,10 @@ class _HomeViewState extends State<HomeView> with TickerProviderStateMixin {
 
   getNotifyGeneral(NotifySearchRequest req) async {
     dataChart.clear();
+    notifies = [];
+    quantity = 0;
+    amount = 0;
+
     ResponseObject res = await con.general(req);
     if (res.code == "00") {
       generals = List<NotifyGeneralResponse>.from((jsonDecode(res.data!)
@@ -446,6 +450,7 @@ class _HomeViewState extends State<HomeView> with TickerProviderStateMixin {
               NotifySearchRequest req = NotifySearchRequest();
               req.fromDate = startDomain;
               req.toDate = startDomain;
+              req.accountID = account!.iD;
               getNotify(req);
             },
             domainAxis: DomainAxis(

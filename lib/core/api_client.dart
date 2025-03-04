@@ -4,7 +4,7 @@ import 'dart:io';
 
 import 'package:dio/dio.dart';
 import 'package:meepay_app/config/api.dart';
-import 'package:meepay_app/models/request/base_request.dart';
+import 'package:meepay_app/models/request/request_object.dart';
 import 'package:meepay_app/models/response/response_object.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 

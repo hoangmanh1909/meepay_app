@@ -9,6 +9,7 @@ import 'package:meepay_app/models/request/login_request.dart';
 import 'package:meepay_app/models/response/response_object.dart';
 import 'package:meepay_app/models/response/token_response.dart';
 import 'package:meepay_app/models/response/user_profile.dart';
+import 'package:meepay_app/utils/bottom_sheet_miss_password.dart';
 import 'package:meepay_app/utils/color_mp.dart';
 import 'package:meepay_app/utils/dialog_confirm.dart';
 import 'package:meepay_app/utils/dialog_process.dart';
@@ -52,9 +53,6 @@ class _LoginViewState extends State<LoginView> {
   }
 
   login() async {
-    dialogConfirm(context, "Xác nhận", "Bạn có chắc chắn muốn xóa tài khoản");
-    return;
-
     final isValid = formKey.currentState!.validate();
     if (!isValid) {
       return;
@@ -206,10 +204,7 @@ class _LoginViewState extends State<LoginView> {
                           Center(
                             child: InkWell(
                               onTap: () {
-                                showMessage(
-                                    "Vui lòng liên hệ số điện thoại 0936062990 để được hướng dẫn lấy lại mật khẩu!",
-                                    "00",
-                                    10);
+                                bottomSheetMissPassword(context);
                               },
                               child: Text(
                                 "Quên mật khẩu?",

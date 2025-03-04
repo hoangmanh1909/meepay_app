@@ -4,10 +4,17 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';
+import 'package:meepay_app/controller/user_controller.dart';
+import 'package:meepay_app/models/request/base_request.dart';
+import 'package:meepay_app/models/response/response_object.dart';
 import 'package:meepay_app/models/response/user_profile.dart';
 import 'package:meepay_app/utils/box_shadow.dart';
 import 'package:meepay_app/utils/color_mp.dart';
 import 'package:meepay_app/utils/common.dart';
+import 'package:meepay_app/utils/dialog_confirm.dart';
+import 'package:meepay_app/utils/dialog_process.dart';
+import 'package:meepay_app/utils/scaffold_messger.dart';
+import 'package:meepay_app/view/account/change_password_view.dart';
 import 'package:meepay_app/view/account/login_view.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -19,6 +26,7 @@ class UserView extends StatefulWidget {
 }
 
 class _UserViewState extends State<UserView> {
+  final UserController con = UserController();
   SharedPreferences? prefs;
   UserProfile? userProfile;
 
@@ -43,7 +51,7 @@ class _UserViewState extends State<UserView> {
 
   logout() async {
     SharedPreferences sharedUser = await SharedPreferences.getInstance();
-    if (context.mounted) {
+    if (mounted) {
       sharedUser.clear();
       Navigator.pushAndRemoveUntil(
         context,
@@ -84,7 +92,12 @@ class _UserViewState extends State<UserView> {
                 child: buildUser(),
               ),
               InkWell(
-                onTap: () {},
+                onTap: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const ChangePasswrodView()));
+                },
                 child: Container(
                     height: 40,
                     width: size.width - 16,
@@ -120,7 +133,7 @@ class _UserViewState extends State<UserView> {
                 height: 10,
               ),
               InkWell(
-                onTap: () {},
+                onTap: removeAccount,
                 child: Container(
                     height: 40,
                     width: size.width - 16,
@@ -136,6 +149,23 @@ class _UserViewState extends State<UserView> {
             ],
           ),
         ));
+  }
+
+  removeAccount() async {
+    bool isCheck = await dialogConfirm(
+        context, "Xác nhận", "Bạn có chắc chắn muốn xóa tài khoản");
+    if (isCheck) {
+      BaseRequest req = BaseRequest();
+      req.id = userProfile!.iD;
+      if (mounted) showProcess(context);
+      ResponseObject res = await con.remove(req);
+      if (mounted) Navigator.of(context);
+      if (res.code == "00") {
+        logout();
+      } else {
+        showMessage(res.message!, "99", 5);
+      }
+    }
   }
 
   Widget buildUser() {

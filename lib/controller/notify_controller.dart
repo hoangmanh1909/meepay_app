@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:meepay_app/constants/command_code.dart';
 import 'package:meepay_app/core/api_client.dart';
-import 'package:meepay_app/models/request/base_request.dart';
+import 'package:meepay_app/models/request/request_object.dart';
 import 'package:meepay_app/models/request/notify_search_request.dart';
 import 'package:mvc_pattern/mvc_pattern.dart';
 

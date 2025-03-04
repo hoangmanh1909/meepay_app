@@ -18,4 +18,8 @@ class CommandCode {
   static String ACCOUNT_VERIFY = "ACCOUNT_VERIFY";
   static String NOTIFY_GENERAL = "NOTIFY_GENERAL";
   static String USER_REGISTER = "USER_REGISTER";
+  static String USER_DELETE = "USER_DELETE";
+  static String USER_VERIFY_OTP = "USER_VERIFY_OTP";
+  static String USER_ADD_PASSWORD = "USER_ADD_PASSWORD";
+  static String USER_MISS_PASSWORD = "USER_MISS_PASSWORD";
 }

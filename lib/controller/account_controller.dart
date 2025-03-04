@@ -4,7 +4,7 @@ import 'package:meepay_app/constants/command_code.dart';
 import 'package:meepay_app/core/api_client.dart';
 import 'package:meepay_app/models/request/account_add_request.dart';
 import 'package:meepay_app/models/request/account_search_request.dart';
-import 'package:meepay_app/models/request/base_request.dart';
+import 'package:meepay_app/models/request/request_object.dart';
 import 'package:meepay_app/models/request/change_link_request.dart';
 import 'package:meepay_app/models/request/verify_otp_request.dart';
 import 'package:meepay_app/models/response/response_object.dart';
