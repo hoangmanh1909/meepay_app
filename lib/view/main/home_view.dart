@@ -124,7 +124,7 @@ class _HomeViewState extends State<HomeView> with TickerProviderStateMixin {
     notifies = [];
     quantity = 0;
     amount = 0;
-
+    setState(() {});
     ResponseObject res = await con.general(req);
     if (res.code == "00") {
       generals = List<NotifyGeneralResponse>.from((jsonDecode(res.data!)
@@ -225,8 +225,8 @@ class _HomeViewState extends State<HomeView> with TickerProviderStateMixin {
                         color: Colors.white,
                       ),
                       onPressed: () async {
-                        List<DateTime> values = await dialogDate(context);
-                        if (values.length > 1) {
+                        final values = await dialogDate(context);
+                        if (values != null && values.length > 1) {
                           fromDate = DateFormat('dd/MM/yyyy').format(values[0]);
                           toDate = DateFormat('dd/MM/yyyy').format(values[1]);
                           NotifySearchRequest req = NotifySearchRequest();
@@ -263,16 +263,10 @@ class _HomeViewState extends State<HomeView> with TickerProviderStateMixin {
                 height: 100,
                 padding: const EdgeInsets.all(4.0),
                 decoration: BoxDecoration(
-                    shape: BoxShape.rectangle,
-                    color: Colors.white,
-                    borderRadius: BorderRadius.all(Radius.circular(8)),
-                    boxShadow: [
-                      BoxShadow(
-                        spreadRadius: 1,
-                        blurRadius: 1,
-                        offset: Offset(1, 1),
-                      )
-                    ]),
+                  shape: BoxShape.rectangle,
+                  color: Colors.white,
+                  borderRadius: BorderRadius.all(Radius.circular(8)),
+                ),
                 child: Column(
                   children: [
                     Row(

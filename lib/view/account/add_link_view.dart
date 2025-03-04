@@ -107,6 +107,7 @@ class _AddLinkViewState extends State<AddLinkView> {
     req.name = _accNameNumber.text;
     req.pIDNumber = _accPIDNumber.text;
     req.serial = _serial.text;
+    req.va = _accVirtual.text;
     if (mounted) showProcess(context);
 
     ResponseObject res = await conAcc.addLink(req);

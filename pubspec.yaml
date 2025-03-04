@@ -54,9 +54,11 @@ dependencies:
   webview_flutter: ^4.7.0
   webview_flutter_android: ^3.16.1
   webview_flutter_wkwebview: ^3.13.0
+  image_picker_ios: ^0.8.12+2
+  image_picker: ^1.1.2
 
 dependency_overrides:
-  camera_android_camerax: 0.6.10+1  #Workaroound for D8/R8 camera bug
+  camera_android_camerax: 0.6.10+1  
   
 dev_dependencies:
   flutter_test:

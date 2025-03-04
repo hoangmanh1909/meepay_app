@@ -10,6 +10,7 @@ class AccountAddNewRequest {
   String? token;
   String? serial;
   String? email;
+  String? va;
 
   AccountAddNewRequest(
       {this.merchantID,
@@ -22,7 +23,8 @@ class AccountAddNewRequest {
       this.mobileNumber,
       this.token,
       this.serial,
-      this.email});
+      this.email,
+      this.va});
 
   AccountAddNewRequest.fromJson(Map<String, dynamic> json) {
     merchantID = json['MerchantID'];
@@ -36,6 +38,7 @@ class AccountAddNewRequest {
     token = json['Token'];
     serial = json['Serial'];
     email = json['Email'];
+    va = json['VirtualAccount'];
   }
 
   Map<String, dynamic> toJson() {
@@ -51,6 +54,7 @@ class AccountAddNewRequest {
     data['Token'] = token;
     data['Serial'] = serial;
     data['Email'] = email;
+    data['VirtualAccount'] = va;
     return data;
   }
 }
