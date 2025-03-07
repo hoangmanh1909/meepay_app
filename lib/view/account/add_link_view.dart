@@ -452,9 +452,9 @@ class _AddLinkViewState extends State<AddLinkView> {
                       MaterialPageRoute(
                           builder: (context) => ScanQRCode(
                                 onCallBack: (value) {
-                                  setState(() {
-                                    _serial.text = value;
-                                  });
+                                  _serial.text = value;
+                                  _accVirtual.text = value;
+                                  setState(() {});
                                 },
                               )));
                 },
@@ -476,7 +476,7 @@ class _AddLinkViewState extends State<AddLinkView> {
           SizedBox(
             height: 10,
           ),
-          textLabelRequired("Số tài khoản ảo"),
+          textLabel("Số tài khoản ảo"),
           SizedBox(
             height: 4,
           ),
@@ -488,12 +488,6 @@ class _AddLinkViewState extends State<AddLinkView> {
                 hintText: "Số tài khoản ảo",
                 contentPadding: EdgeInsets.all(10),
                 isDense: true),
-            validator: (text) {
-              if (text == null || text.isEmpty) {
-                return "Vui lòng nhập Số tài khoản ảo";
-              }
-              return null;
-            },
           ),
         ]);
   }
