@@ -61,7 +61,7 @@ class _RuleViewState extends State<RuleView> {
             onWebResourceError: (WebResourceError error) {},
           ),
         )
-        ..loadRequest(Uri.parse('http://meepay.vn/dieukhoansudung.html'));
+        ..loadRequest(Uri.parse('https://meepay.vn/dieukhoansudung.html'));
     }
     return Scaffold(
         appBar: AppBar(
