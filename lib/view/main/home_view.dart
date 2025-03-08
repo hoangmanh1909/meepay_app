@@ -26,6 +26,7 @@ import 'package:meepay_app/models/response/response_object.dart';
 import 'package:meepay_app/models/response/user_profile.dart';
 import 'package:meepay_app/utils/app_color.dart';
 import 'package:meepay_app/utils/bottom_sheet.dart';
+import 'package:meepay_app/utils/box_shadow.dart';
 import 'package:meepay_app/utils/color_mp.dart';
 import 'package:meepay_app/utils/common.dart';
 import 'package:meepay_app/utils/dialog_date.dart';
@@ -124,7 +125,7 @@ class _HomeViewState extends State<HomeView> with TickerProviderStateMixin {
     notifies = [];
     quantity = 0;
     amount = 0;
-
+    setState(() {});
     ResponseObject res = await con.general(req);
     if (res.code == "00") {
       generals = List<NotifyGeneralResponse>.from((jsonDecode(res.data!)
@@ -263,16 +264,9 @@ class _HomeViewState extends State<HomeView> with TickerProviderStateMixin {
                 height: 100,
                 padding: const EdgeInsets.all(4.0),
                 decoration: BoxDecoration(
-                    shape: BoxShape.rectangle,
-                    color: Colors.white,
-                    borderRadius: BorderRadius.all(Radius.circular(8)),
-                    boxShadow: [
-                      BoxShadow(
-                        spreadRadius: 1,
-                        blurRadius: 1,
-                        offset: Offset(1, 1),
-                      )
-                    ]),
+                  color: Colors.white,
+                  borderRadius: BorderRadius.all(Radius.circular(8)),
+                ),
                 child: Column(
                   children: [
                     Row(
