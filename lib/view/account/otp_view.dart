@@ -12,11 +12,20 @@ import 'package:meepay_app/utils/dialog_process.dart';
 import 'package:meepay_app/utils/scaffold_messger.dart';
 
 class OTPView extends StatefulWidget {
-  const OTPView({Key? key, required this.code, required this.bankID})
+  const OTPView(
+      {Key? key,
+      required this.code,
+      required this.bankID,
+      this.refCode,
+      this.accountNumber,
+      required this.type})
       : super(key: key);
 
   final String code;
   final int bankID;
+  final String? refCode;
+  final String? accountNumber;
+  final String type;
   @override
   State<OTPView> createState() => _OTPViewState();
 }
@@ -29,15 +38,23 @@ class _OTPViewState extends State<OTPView> {
       if (otp.length == 6) {
         VerifyOTPRequest req = VerifyOTPRequest();
         req.code = widget.code;
-        req.oTP = otp;
+        req.otp = otp;
         req.bankID = widget.bankID;
+        req.refCode = widget.refCode;
+        req.accountNumber = widget.accountNumber;
+        req.type = widget.type;
         if (mounted) showProcess(context);
         ResponseObject res = await conAcc.verifyOtp(req);
         if (mounted) Navigator.pop(context);
         if (res.code == "00") {
           if (mounted) {
-            dialogBuilderSucess(
-                context, "Thông báo", "Thêm mới liên kết tài khoản thành công");
+            if (widget.type == "A") {
+              dialogBuilderSucess(context, "Thông báo",
+                  "Thêm mới liên kết tài khoản thành công");
+            } else {
+              dialogBuilderSucess(
+                  context, "Thông báo", "Huỷ liên kết tài khoản thành công");
+            }
           }
         } else {
           if (mounted) {

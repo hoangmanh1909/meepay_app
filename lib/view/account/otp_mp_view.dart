@@ -53,7 +53,7 @@ class _OTPMpViewState extends State<OTPMpView> {
       if (otp.length == 6) {
         VerifyOTPRequest req = VerifyOTPRequest();
         req.phoneNumber = widget.phoneNumber;
-        req.oTP = otp;
+        req.otp = otp;
         if (mounted) showProcess(context);
         ResponseObject res = await conAcc.verifyOTP(req);
         if (mounted) Navigator.pop(context);

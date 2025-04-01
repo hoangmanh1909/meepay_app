@@ -15,6 +15,7 @@ class AccountSearchResponse {
   String? mobileNumber;
   String? status;
   String? token;
+  String? refCode;
   DeviceSearchResponse? device;
 
   AccountSearchResponse(
@@ -30,9 +31,11 @@ class AccountSearchResponse {
       this.mobileNumber,
       this.status,
       this.token,
-      this.device});
+      this.device,
+      this.refCode});
 
   AccountSearchResponse.fromJson(Map<String, dynamic> json) {
+    refCode = json['RefCode'];
     iD = json['ID'];
     merchantID = json['MerchantID'];
     shopID = json['ShopID'];
@@ -53,6 +56,7 @@ class AccountSearchResponse {
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
+    data['RefCode'] = refCode;
     data['ID'] = iD;
     data['MerchantID'] = merchantID;
     data['ShopID'] = shopID;

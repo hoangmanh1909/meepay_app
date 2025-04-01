@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:meepay_app/controller/account_controller.dart';
 import 'package:meepay_app/models/request/account_search_request.dart';
+import 'package:meepay_app/models/request/base_request.dart';
 import 'package:meepay_app/models/request/change_link_request.dart';
 import 'package:meepay_app/models/response/account_search_response.dart';
 import 'package:meepay_app/models/response/response_object.dart';
@@ -11,9 +12,11 @@ import 'package:meepay_app/models/response/user_profile.dart';
 import 'package:meepay_app/utils/box_shadow.dart';
 import 'package:meepay_app/utils/color_mp.dart';
 import 'package:meepay_app/utils/common.dart';
+import 'package:meepay_app/utils/dialog_confirm.dart';
 import 'package:meepay_app/utils/dialog_process.dart';
 import 'package:meepay_app/utils/scaffold_messger.dart';
 import 'package:meepay_app/view/account/add_link_view.dart';
+import 'package:meepay_app/view/account/otp_view.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ShopView extends StatefulWidget {
@@ -57,10 +60,9 @@ class _ShopViewState extends State<ShopView> {
     if (mounted) showProcess(context);
     ResponseObject res = await con.search(req);
     if (res.code == "00") {
-      setState(() {
-        accounts = List<AccountSearchResponse>.from((jsonDecode(res.data!)
-            .map((model) => AccountSearchResponse.fromJson(model))));
-      });
+      accounts = List<AccountSearchResponse>.from((jsonDecode(res.data!)
+          .map((model) => AccountSearchResponse.fromJson(model))));
+      setState(() {});
     }
     // else {
     //   showMessage(res.message!, "99", 4);
@@ -87,6 +89,34 @@ class _ShopViewState extends State<ShopView> {
     return result;
   }
 
+  unlink(AccountSearchResponse item) async {
+    BaseRequest req = BaseRequest();
+    req.id = item.iD;
+    if (mounted) showProcess(context);
+    ResponseObject res = await con.unLink(req);
+    if (mounted) {
+      Navigator.pop(context);
+    }
+    if (res.code == "00") {
+      final v = jsonDecode(res.data!);
+      if (mounted) {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (BuildContext context) => OTPView(
+                    code: v["RequestID"],
+                    bankID: item.bankID!,
+                    type: "C",
+                    refCode: item.refCode,
+                    accountNumber: item.accoumtNumber,
+                  )),
+        );
+      } else {
+        showMessage(res.message!, "99", 4);
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -99,9 +129,8 @@ class _ShopViewState extends State<ShopView> {
           title: const Text("Tài khoản liên kết"),
         ),
         body: Column(
-          mainAxisSize: MainAxisSize.min,
           children: [
-            buildAccount(),
+            Expanded(child: buildAccount()),
             buildLink(),
           ],
         ));
@@ -112,7 +141,6 @@ class _ShopViewState extends State<ShopView> {
       return ListView.builder(
         shrinkWrap: true,
         itemCount: accounts.length,
-        scrollDirection: Axis.vertical,
         itemBuilder: (context, index) {
           AccountSearchResponse item = accounts[index];
 
@@ -126,7 +154,22 @@ class _ShopViewState extends State<ShopView> {
             ),
             child: Column(
               mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.end,
               children: [
+                InkWell(
+                  onTap: () async {
+                    bool isConfirm = await dialogConfirm(context, "Xác nhận",
+                        "Bạn có chắc chắn muốn huỷ liên kết tài khoản?");
+                    if (isConfirm) {
+                      unlink(item);
+                    }
+                  },
+                  child: const Icon(
+                    Ionicons.close,
+                    color: Colors.red,
+                    size: 30,
+                  ),
+                ),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -164,6 +207,27 @@ class _ShopViewState extends State<ShopView> {
                       ],
                     ),
                     textValue(item.accoumtNumber!)
+                  ],
+                ),
+                const SizedBox(
+                  height: 14,
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      children: [
+                        const Icon(
+                          Ionicons.browsers_outline,
+                          size: 20,
+                        ),
+                        const SizedBox(
+                          width: 10,
+                        ),
+                        textLabel("Số tài khoản ảo"),
+                      ],
+                    ),
+                    textValue(item.refCode!)
                   ],
                 ),
                 const SizedBox(

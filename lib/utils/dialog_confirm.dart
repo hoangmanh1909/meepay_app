@@ -12,9 +12,9 @@ dialogConfirm(BuildContext context, String title, String message) {
         actionsAlignment: MainAxisAlignment.center,
         backgroundColor: ColorMP.ColorBackground,
         surfaceTintColor: Colors.transparent,
-        titlePadding: EdgeInsets.all(10),
-        contentPadding: EdgeInsets.all(10),
-        actionsPadding: EdgeInsets.all(10),
+        // titlePadding: EdgeInsets.all(10),
+        // contentPadding: EdgeInsets.all(10),
+        // actionsPadding: EdgeInsets.all(10),
         shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.all(Radius.circular(10))),
         title: Text(

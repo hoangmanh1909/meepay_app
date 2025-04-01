@@ -4,6 +4,7 @@ import 'package:meepay_app/constants/command_code.dart';
 import 'package:meepay_app/core/api_client.dart';
 import 'package:meepay_app/models/request/account_add_request.dart';
 import 'package:meepay_app/models/request/account_search_request.dart';
+import 'package:meepay_app/models/request/base_request.dart';
 import 'package:meepay_app/models/request/request_object.dart';
 import 'package:meepay_app/models/request/change_link_request.dart';
 import 'package:meepay_app/models/request/verify_otp_request.dart';
@@ -38,6 +39,12 @@ class AccountController extends ControllerMVC {
         code: CommandCode.ACCOUNT_BANK_ADD_NEW,
         data: jsonEncode(req),
         signature: "");
+    return await apiClient.execute(baseRequest);
+  }
+
+  Future<ResponseObject> unLink(BaseRequest req) async {
+    RequestObject baseRequest = RequestObject(
+        code: CommandCode.ACCOUNT_UNLINK, data: jsonEncode(req), signature: "");
     return await apiClient.execute(baseRequest);
   }
 

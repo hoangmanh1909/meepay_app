@@ -1,24 +1,45 @@
 class VerifyOTPRequest {
-  String? oTP;
+  String? otp;
   String? code;
-  int? bankID;
+  String? refCode;
   String? phoneNumber;
+  String? accountNumber;
+  int? bankID;
+  String? type; // "A" - Liên kết, "C" - Hủy liên kết
 
-  VerifyOTPRequest({this.oTP, this.code, this.bankID = 0, this.phoneNumber});
+  VerifyOTPRequest({
+    this.otp,
+    this.code,
+    this.refCode,
+    this.phoneNumber,
+    this.accountNumber,
+    this.bankID,
+    this.type,
+  });
 
-  VerifyOTPRequest.fromJson(Map<String, dynamic> json) {
-    oTP = json['OTP'];
-    code = json['Code'];
-    bankID = json['BankID'];
-    phoneNumber = json['PhoneNumber'];
+  // Chuyển từ JSON sang đối tượng Dart
+  factory VerifyOTPRequest.fromJson(Map<String, dynamic> json) {
+    return VerifyOTPRequest(
+      otp: json['OTP'] as String?,
+      code: json['Code'] as String?,
+      refCode: json['RefCode'] as String?,
+      phoneNumber: json['PhoneNumber'] as String?,
+      accountNumber: json['AccountNumber'] as String?,
+      bankID: json['BankID'] as int?,
+      type: json['Type'] as String?,
+    );
   }
 
+  // Chuyển từ đối tượng Dart sang JSON
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = <String, dynamic>{};
-    data['OTP'] = oTP;
-    data['Code'] = code;
-    data['BankID'] = bankID;
-    data['PhoneNumber'] = phoneNumber;
-    return data;
+    return {
+      'OTP': otp,
+      'Code': code,
+      'RefCode': refCode,
+      'PhoneNumber': phoneNumber,
+      'AccountNumber': accountNumber,
+      'BankID': bankID,
+      'Type': type,
+    };
   }
 }

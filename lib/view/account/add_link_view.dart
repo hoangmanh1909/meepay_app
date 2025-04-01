@@ -121,6 +121,7 @@ class _AddLinkViewState extends State<AddLinkView> {
               builder: (BuildContext context) => OTPView(
                     code: v["Code"],
                     bankID: selectedBank!.iD!,
+                    type: "A",
                   )),
         );
         // dialogBuilderSucess(
